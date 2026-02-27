@@ -2,7 +2,7 @@
 
 **A math-first markdown editor with a custom DSL — no LaTeX required.**
 
-Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }` blocks and they get evaluated, rendered beautifully, and plotted — all in the browser, no backend needed.
+Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }` blocks and they get evaluated, rendered beautifully, and plotted — all in the browser.
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 ![Built with React](https://img.shields.io/badge/built%20with-React-61DAFB)
@@ -78,14 +78,6 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173).
 
-### Build for production
-
-```bash
-npm run build
-```
-
-Output goes to `dist/`. Deploy to Vercel, Netlify, or GitHub Pages.
-
 ---
 
 ## Tech Stack
@@ -114,4 +106,4 @@ Please open an issue first for larger changes so we can discuss the direction.
 
 ## License
 
-MIT © [Your Name](https://github.com/yourusername)
+MIT © [ekler](https://github.com/ekllerr)

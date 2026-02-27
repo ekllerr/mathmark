@@ -1,1 +1,15 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600');
+
+@theme {
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-serif: 'Fraunces', Georgia, serif;
+
+  --color-bg: #0e0e14;
+  --color-surface: #14141e;
+  --color-panel: #191926;
+  --color-border: #23233a;
+  --color-accent: #7DF9AA;
+  --color-accent2: #60CFFF;
+  --color-muted: #5a5a78;
+}
