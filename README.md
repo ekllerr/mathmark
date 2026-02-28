@@ -4,6 +4,7 @@
 
 Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }` blocks and they get evaluated, rendered beautifully, and plotted.
 
+[![GitHub Pages](https://img.shields.io/badge/demo-online-blue)](https://ekllerr.github.io/mathmark/)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 ![Built with React](https://img.shields.io/badge/built%20with-React-61DAFB)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
