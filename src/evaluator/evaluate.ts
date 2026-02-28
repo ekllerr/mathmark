@@ -147,7 +147,7 @@ function formatNum(val: unknown): string {
 
 function toLatex(expr: string): string {
   return expr
-    .replace(/\*/g, '\\cdot')
+    .replace(/\*/g, ' \\cdot')
     .replace(/\bpi\b/g, '\\pi')
     .replace(/\bsin\b/g, '\\sin')
     .replace(/\bcos\b/g, '\\cos')
