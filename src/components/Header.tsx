@@ -7,7 +7,7 @@ export default function Header() {
     const tab = useUIStore(state => state.tab);
     
   return (
-    <header className="flex items-center gap-4 px-6 h-13 border-b border-border bg-surface shrink-0">
+    <header className="flex flex-wrap items-center gap-4 px-4 md:px-6 h-auto md:h-13 py-2 md:py-0 border-b border-border bg-surface shrink-0">
           <div className="flex items-baseline gap-2">
             <span className="font-serif text-[22px] text-accent leading-none">∑</span>
             <span className="font-serif font-medium text-[18px] tracking-tight text-white">Mathmark</span>
@@ -16,8 +16,9 @@ export default function Header() {
           <nav className="flex flex-1 justify-center">
             <div className="flex gap-1 bg-bg border border-border rounded-lg p-0.75">
               {tabs.map(t => (
-                <button key={t} onClick={() => setTab(t as Tab)} className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
-      ${tab === t ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}>
+                <button key={t} onClick={() => setTab(t as Tab)} className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors 
+                    ${t === 'split' ? 'hidden md:block' : ''}
+                    ${tab === t ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}>
                   {t}
                 </button>
               ))}

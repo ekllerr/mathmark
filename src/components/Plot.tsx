@@ -39,7 +39,7 @@ export default function MathPlot({fns }: Props) {
         yaxis: { gridcolor: '#2a2a3a', zerolinecolor: '#4a4a5a' },
         showlegend: fns.length > 1,
         legend: { bgcolor: 'transparent' },
-    }, { displayModeBar: true, responsive: true })
+    }, { displayModeBar: true, responsive: true})
 
     return () => { Plotly.purge(container) }
     }, [fns]);
