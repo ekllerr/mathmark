@@ -1,8 +1,8 @@
 # ∑ Mathmark
 
-**A math-first markdown editor with a custom DSL — no LaTeX required.**
+**A math-first markdown editor with a custom DSL - no LaTeX required.**
 
-Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }` blocks and they get evaluated, rendered beautifully, and plotted — all in the browser.
+Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }` blocks and they get evaluated, rendered beautifully, and plotted.
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 ![Built with React](https://img.shields.io/badge/built%20with-React-61DAFB)
@@ -12,14 +12,14 @@ Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }`
 
 ## Features
 
-- **Custom DSL** — write math naturally, never touch LaTeX
-- **Live evaluation** — variables, expressions, and assignments evaluated left-to-right
-- **Beautiful rendering** — expressions rendered with KaTeX
-- **Plotting** — interactive charts via Plotly.js
-- **Numerical integration** — `int(a,b) expr dx`
-- **Limits** — `lim(x->c) expr`
+- **Custom DSL**  write math naturally, never touch LaTeX
+- **Live evaluation** - variables, expressions, and assignments evaluated left-to-right
+- **Beautiful rendering** - expressions rendered with KaTeX
+- **Plotting** - interactive charts via Plotly.js
+- **Numerical integration** - `int(a,b) expr dx`
+- **Limits** - `lim(x->c) expr`
 - **Split / Editor / Preview** modes
-- **Fully client-side** — no backend, no accounts, no tracking
+- **Fully client-side**
 
 ---
 

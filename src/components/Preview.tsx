@@ -1,5 +1,3 @@
-import { parseBlocks } from "@/parser/blockParser";
-import { parseStatements } from "@/parser/dslParser";
 import useEditorStore from "@/store/editor"
 import { marked } from "marked";
 
@@ -10,12 +8,6 @@ export default function Preview() {
     });
 
     const content = useEditorStore(state => state.content);
-
-    const blocks = parseBlocks(content);
-    blocks.forEach(b => {
-        console.log('block: ', b.inner);
-        console.log('statements: ', parseStatements(b.inner));
-    })
 
     return (
       <div className="flex flex-col flex-1 overflow-hidden">

@@ -1,4 +1,4 @@
-export interface AssigmentStatement{
+export interface AssignmentStatement{
     type: 'assigment',
     name: string,
     value: string,
@@ -35,7 +35,7 @@ export interface ExpressionStatement{
 }
 
 export type Statement =
-    | AssigmentStatement
+    | AssignmentStatement
     | PlotStatement
     | IntegralStatement
     | LimitStatement
