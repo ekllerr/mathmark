@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600');
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --font-mono: 'IBM Plex Mono', monospace;
@@ -12,4 +13,19 @@
   --color-accent: #7DF9AA;
   --color-accent2: #60CFFF;
   --color-muted: #5a5a78;
+}
+
+@layer base {
+  .prose {
+    font-family: var(--font-mono);
+    font-weight: 300;
+  }
+
+  .prose strong {
+    font-weight: 500;
+  }
+
+  .prose h1, .prose h2, .prose h3 {
+    font-weight: 500;
+  }
 }

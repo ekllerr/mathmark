@@ -1,4 +1,6 @@
 import useUIStore from "@/store/uiStore";
+import Editor from "@/components/Editor"
+import Preview from "./Preview";
 
 export default function Main() {
 
@@ -8,29 +10,9 @@ export default function Main() {
   return (
     <main className="flex flex-1 overflow-hidden">
 
-        {tab !== 'preview' && (
-          <div className="flex flex-col flex-1 overflow-hidden border-r border-border">
-            <div className="px-4 py-1.5 text-[9px] tracking-widest text-muted uppercase border-b border-border bg-surface">
-              Editor
-            </div>
-            <textarea
-              className="flex-1 w-full bg-panel text-text font-mono text-sm leading-7 p-6 resize-none outline-none text-neutral-100"
-              spellCheck={false}
-              placeholder="Start writing..."
-            />
-          </div>
-        )}
+        {tab !== 'preview' && <Editor/>}
 
-        {tab !== 'editor' && (
-          <div className="flex flex-col flex-1 overflow-hidden">
-            <div className="px-4 py-1.5 text-[9px] tracking-widest text-muted uppercase border-b border-border bg-surface">
-              Preview
-            </div>
-            <div className="flex-1 overflow-y-auto p-8 bg-panel text-neutral-100">
-              {/* renderer output goes here later */}
-            </div>
-          </div>
-        )}
+        {tab !== 'editor' && <Preview/>}
       </main>
   )
 }
