@@ -23,7 +23,10 @@ export interface ErrorResult{
 export type EvalResult = ValueResult | PlotResult | ErrorResult;
 
 export function evaluateBlock(statements: Statement[]) : EvalResult[] {
-    const scope: Record<string, unknown> = {};
+    const scope: Record<string, unknown> = {
+        inf: Infinity,
+        infinity: Infinity,
+    };
     const results: EvalResult[] = [];
 
     for(const stmt of statements){
@@ -85,14 +88,16 @@ function evalExpression(stmt: ExpressionStatement, scope: Record<string, unknown
 }
 
 function evalIntegral(stmt: IntegralStatement, scope: Record<string, unknown>): ValueResult {
-    const a = parseFloat(String(math.evaluate(stmt.from, scope)));
-    const b = parseFloat(String(math.evaluate(stmt.to, scope)));
+    const a = parseLimit(stmt.from, scope)
+    const b = parseLimit(stmt.to, scope);
+    const effectiveA = !isFinite(a) ? (a > 0 ? 1e6 : -1e6) : a;
+    const effectiveB = !isFinite(b) ? (b > 0 ? 1e6 : -1e6) : b;
     const n = 1000;
-    const h = (b - a) / n;
+    const h = (effectiveB - effectiveA) / n;
     let sum = 0;
 
     for(let i = 0; i <= n; i++){
-        const x = a + i * h;
+        const x = effectiveA + i * h;
         const v = parseFloat(String(math.evaluate(stmt.expr, {...scope, [stmt.variable]: x})));
         sum += ( i === 0 || i === n) ? v : (i % 2 === 0 ? 2 * v : 4 * v);
     }
@@ -100,21 +105,33 @@ function evalIntegral(stmt: IntegralStatement, scope: Record<string, unknown>): 
     const value = (h / 3) * sum;
     return {
         type: 'value',
-        latex: `\\int_{${a}}^{${b}} ${toLatex(stmt.expr)} \\, d${stmt.variable} = ${formatNum(value)}`,
+        latex: `\\int_{${numToLatex(a)}}^{${numToLatex(b)}} ${toLatex(stmt.expr)} \\, d${stmt.variable} = ${formatNum(value)}`,
         raw: value
     }
 }
 
 function evalLimit(stmt: LimitStatement, scope: Record<string, unknown>): ValueResult {
-    const c = parseFloat(String(math.evaluate(stmt.approach, scope)));
+    const c = parseLimit(stmt.approach, scope);
     const eps = 1e-8;
 
     const v1 = parseFloat(String(math.evaluate(stmt.expr, {...scope, [stmt.variable]: c + eps})));
     const v2 = parseFloat(String(math.evaluate(stmt.expr, {...scope, [stmt.variable]: c - eps}))); 
 
-    const value = (v1 + v2) / 2;
-    const approachLatex = stmt.approach === 'Infinity' ? '\\infty' : stmt.approach;
+    let value: number;
 
+    if (!isFinite(c)) {
+        const large = c > 0 ? 1e10 : -1e10
+        value = parseFloat(String(math.evaluate(stmt.expr, { ...scope, [stmt.variable]: large })))
+    } else {
+        const v1 = parseFloat(String(math.evaluate(stmt.expr, { ...scope, [stmt.variable]: c + eps })))
+        const v2 = parseFloat(String(math.evaluate(stmt.expr, { ...scope, [stmt.variable]: c - eps })))
+        value = (v1 + v2) / 2
+    }
+
+    const approachLatex = stmt.approach.toLowerCase() === 'inf' ||
+                          stmt.approach.toLowerCase() === 'infinity' ||
+                          c === Infinity ? '\\infty' :
+                          c === -Infinity ? '-\\infty' : stmt.approach;
     return {
         type: 'value',
         latex: `\\lim_{${stmt.variable} \\to ${approachLatex}} ${toLatex(stmt.expr)} = ${formatNum(value)}`,
@@ -139,4 +156,17 @@ function toLatex(expr: string): string {
     .replace(/\bcos\b/g, '\\cos')
     .replace(/\btan\b/g, '\\tan')
     .replace(/\bsqrt\(([^)]+)\)/g, '\\sqrt{$1}')
+}
+
+function parseLimit(val: string, scope: Record<string, unknown>): number {
+  const trimmed = val.trim().toLowerCase()
+  if (trimmed === 'inf' || trimmed === 'infinity' || trimmed === '∞') return Infinity
+  if (trimmed === '-inf' || trimmed === '-infinity' || trimmed === '-∞') return -Infinity
+  return parseFloat(String(math.evaluate(val, scope)))
+}
+
+function numToLatex(n: number): string {
+  if (n === Infinity) return '\\infty'
+  if (n === -Infinity) return '-\\infty'
+  return String(n)
 }
