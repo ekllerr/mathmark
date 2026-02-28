@@ -114,9 +114,6 @@ function evalLimit(stmt: LimitStatement, scope: Record<string, unknown>): ValueR
     const c = parseLimit(stmt.approach, scope);
     const eps = 1e-8;
 
-    const v1 = parseFloat(String(math.evaluate(stmt.expr, {...scope, [stmt.variable]: c + eps})));
-    const v2 = parseFloat(String(math.evaluate(stmt.expr, {...scope, [stmt.variable]: c - eps}))); 
-
     let value: number;
 
     if (!isFinite(c)) {
