@@ -78,13 +78,21 @@ function evalAssignment(stmt: AssignmentStatement, scope: Record<string, unknown
 }
 
 function evalExpression(stmt: ExpressionStatement, scope: Record<string, unknown>): ValueResult {
-  const val = math.evaluate(stmt.expr, scope)
-
-  return {
-    type: 'value',
-    latex: `${toLatex(stmt.expr)} = ${formatNum(val)}`,
-    raw: val,
-  }
+    try{
+        const val = math.evaluate(stmt.expr, scope)
+        
+        return {
+            type: 'value',
+            latex: `${toLatex(stmt.expr)} = ${formatNum(val)}`,
+            raw: val,
+        }
+    } catch {
+        return {
+            type: 'value',
+            latex: toLatex(stmt.expr),
+            raw: stmt.expr,
+        }
+    }
 }
 
 function evalIntegral(stmt: IntegralStatement, scope: Record<string, unknown>): ValueResult {
@@ -147,7 +155,7 @@ function formatNum(val: unknown): string {
 
 function toLatex(expr: string): string {
   return expr
-    .replace(/\*/g, ' \\cdot')
+    .replace(/(\w+)\s*\*\s*(\w+)/g, '$1 \\cdot $2')
     .replace(/\bpi\b/g, '\\pi')
     .replace(/\bsin\b/g, '\\sin')
     .replace(/\bcos\b/g, '\\cos')
