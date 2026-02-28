@@ -1,5 +1,5 @@
 import * as math from 'mathjs'
-import type { Statement, AssignmentStatement, IntegralStatement, LimitStatement, ExpressionStatement } from '@/parser/dslParser'
+import type { Statement, AssignmentStatement, IntegralStatement, LimitStatement, ExpressionStatement, SumStatement } from '@/parser/dslParser'
 
 
 export type EvalResultType = 'value' | 'plot' | 'error';
@@ -54,6 +54,11 @@ export function evaluateBlock(statements: Statement[]) : EvalResult[] {
 
                 case 'expression': {
                     results.push(evalExpression(stmt, scope));
+                    break;
+                }
+
+                case 'sum':{
+                    results.push(evalSum(stmt, scope));
                     break;
                 }
             } 
@@ -140,6 +145,24 @@ function evalLimit(stmt: LimitStatement, scope: Record<string, unknown>): ValueR
     return {
         type: 'value',
         latex: `\\lim_{${stmt.variable} \\to ${approachLatex}} ${toLatex(stmt.expr)} = ${formatNum(value)}`,
+        raw: value
+    }
+}
+
+function evalSum(stmt: SumStatement, scope: Record<string, unknown>): ValueResult{
+
+    const from = Math.round(parseFloat(String(math.evaluate(stmt.from, scope))));
+    const to = Math.round(parseFloat(String(math.evaluate(stmt.to, scope))));
+
+    let value = 0;
+
+    for(let i = from; i <= to; i++){
+        value += parseFloat(String(math.evaluate(stmt.expr, {...scope, [stmt.variable]: i})));
+    }
+
+    return {
+        type: 'value',
+        latex:  `\\sum_{${stmt.variable}=${from}}^{${to}} ${toLatex(stmt.expr)} = ${formatNum(value)}`,
         raw: value
     }
 }

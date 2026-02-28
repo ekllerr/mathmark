@@ -34,12 +34,22 @@ export interface ExpressionStatement{
     raw: string
 }
 
+export interface SumStatement{
+    type: 'sum',
+    variable: string,
+    from: string,
+    to: string,
+    expr: string,
+    raw: string
+}
+
 export type Statement =
     | AssignmentStatement
     | PlotStatement
     | IntegralStatement
     | LimitStatement
-    | ExpressionStatement;
+    | ExpressionStatement
+    | SumStatement
 
 export function parseStatements(inner: string): Statement[]{
    return splitStatements(inner)
@@ -53,6 +63,7 @@ function parseStatement(raw: string): Statement{
     const plotReg = /^plot\((.+)\)$/;
     const integralReg = /^int\(([^,]+),([^)]+)\)\s+(.+?)\s+d([a-z])$/;
     const limitReg = /^lim\(([a-z])->([^)]+)\)\s+(.+)$/;
+    const sumReg = /^sum\(([a-z]),([^,]+),([^)]+)\)\s+(.+)$/;
 
     const assignMatch = raw.match(assingReg);
     if(assignMatch)
@@ -82,6 +93,18 @@ function parseStatement(raw: string): Statement{
             expr: limMatch[3].trim(),
             raw
         }
+
+    const sumMatch = raw.match(sumReg)
+    if (sumMatch) {
+      return {
+        type: 'sum',
+        variable: sumMatch[1],
+        from: sumMatch[2].trim(),
+        to: sumMatch[3].trim(),
+        expr: sumMatch[4].trim(),
+        raw
+      }
+    }
 
     return {type: 'expression', expr: raw, raw}
 }
