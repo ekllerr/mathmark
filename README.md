@@ -106,4 +106,4 @@ Please open an issue first for larger changes so we can discuss the direction.
 
 ## License
 
-MIT © [ekler](https://github.com/ekllerr)
+MIT © [Ekler](https://github.com/ekllerr)
