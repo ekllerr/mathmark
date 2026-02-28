@@ -1,5 +1,5 @@
 export interface AssignmentStatement{
-    type: 'assigment',
+    type: 'assignment',
     name: string,
     value: string,
     raw: string
@@ -56,7 +56,7 @@ function parseStatement(raw: string): Statement{
 
     const assignMatch = raw.match(assingReg);
     if(assignMatch)
-        return {type: 'assigment', name: assignMatch[1], value: assignMatch[2].trim(), raw}
+        return {type: 'assignment', name: assignMatch[1], value: assignMatch[2].trim(), raw}
 
     const plotMatch = raw.match(plotReg);
     if(plotMatch)

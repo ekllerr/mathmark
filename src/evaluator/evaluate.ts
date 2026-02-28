@@ -29,7 +29,7 @@ export function evaluateBlock(statements: Statement[]) : EvalResult[] {
     for(const stmt of statements){
         try{
             switch(stmt.type){
-                case 'assigment': {
+                case 'assignment': {
                     results.push(evalAssignment(stmt, scope));
                     break;
                 }
@@ -64,23 +64,24 @@ export function evaluateBlock(statements: Statement[]) : EvalResult[] {
 }
 
 function evalAssignment(stmt: AssignmentStatement, scope: Record<string, unknown>): ValueResult {
-    const val = math.evaluate(stmt.value, scope);
-    scope[stmt.name] = val;
+  const val = math.evaluate(stmt.value, scope)
+  scope[stmt.name] = val
 
-    return {
-        type: 'value',
-        latex: `${stmt.name} = ${formatNum(val)}`,
-        raw: val
-    } 
+  return {
+    type: 'value',
+    latex: `${toLatex(stmt.name)} = ${formatNum(val)}`,
+    raw: val,
+  }
 }
 
 function evalExpression(stmt: ExpressionStatement, scope: Record<string, unknown>): ValueResult {
-    const val = math.evaluate(stmt.expr, scope);
-    return {
-        type: 'value',
-        latex: `${stmt.expr} = ${formatNum(val)}`,
-        raw: val
-    }
+  const val = math.evaluate(stmt.expr, scope)
+
+  return {
+    type: 'value',
+    latex: `${toLatex(stmt.expr)} = ${formatNum(val)}`,
+    raw: val,
+  }
 }
 
 function evalIntegral(stmt: IntegralStatement, scope: Record<string, unknown>): ValueResult {
@@ -99,7 +100,7 @@ function evalIntegral(stmt: IntegralStatement, scope: Record<string, unknown>): 
     const value = (h / 3) * sum;
     return {
         type: 'value',
-        latex: `\\int_{${a}}^{${b}} ${stmt.expr} \\, d${stmt.variable} = ${formatNum(value)}`,
+        latex: `\\int_{${a}}^{${b}} ${toLatex(stmt.expr)} \\, d${stmt.variable} = ${formatNum(value)}`,
         raw: value
     }
 }
@@ -116,7 +117,7 @@ function evalLimit(stmt: LimitStatement, scope: Record<string, unknown>): ValueR
 
     return {
         type: 'value',
-        latex: `\\lim_{${stmt.variable} \\to ${approachLatex}} ${stmt.expr} = ${formatNum(value)}`,
+        latex: `\\lim_{${stmt.variable} \\to ${approachLatex}} ${toLatex(stmt.expr)} = ${formatNum(value)}`,
         raw: value
     }
 }
@@ -128,4 +129,14 @@ function formatNum(val: unknown): string {
     }
 
     return String(val);
+}
+
+function toLatex(expr: string): string {
+  return expr
+    .replace(/\*/g, '\\cdot')
+    .replace(/\bpi\b/g, '\\pi')
+    .replace(/\bsin\b/g, '\\sin')
+    .replace(/\bcos\b/g, '\\cos')
+    .replace(/\btan\b/g, '\\tan')
+    .replace(/\bsqrt\(([^)]+)\)/g, '\\sqrt{$1}')
 }
