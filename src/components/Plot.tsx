@@ -30,13 +30,25 @@ export default function MathPlot({fns }: Props) {
         line: { color: colors[i % colors.length], width: 2.5 },
     }))
 
-    Plotly.newPlot(container, traces, {
+    const xRange = 20;
+
+    Plotly.react(container, traces, {
+        dragmode: 'pan',
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
         font: { color: '#c8c8d0', family: 'IBM Plex Mono, monospace', size: 11 },
         margin: { t: 20, b: 36, l: 44, r: 12 },
-        xaxis: { gridcolor: '#2a2a3a', zerolinecolor: '#4a4a5a' },
-        yaxis: { gridcolor: '#2a2a3a', zerolinecolor: '#4a4a5a' },
+        xaxis: { 
+            gridcolor: '#2a2a3a', 
+            zerolinecolor: '#4a4a5a',
+        },
+        yaxis: {
+            gridcolor: '#2a2a3a',
+            zerolinecolor: '#4a4a5a',
+            range: [-(xRange/ 2), xRange/ 2],
+            scaleanchor: 'x',
+            scaleratio: 1,
+        },
         showlegend: fns.length > 1,
         legend: { bgcolor: 'transparent' },
     }, { displayModeBar: true, responsive: true})

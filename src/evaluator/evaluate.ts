@@ -26,6 +26,8 @@ export function evaluateBlock(statements: Statement[]) : EvalResult[] {
     const scope: Record<string, unknown> = {
         inf: Infinity,
         infinity: Infinity,
+        ln: (x: number) => Math.log(x),
+        lg: (x: number) => Math.log10(x),
     };
     const results: EvalResult[] = [];
 
@@ -184,6 +186,8 @@ function toLatex(expr: string): string {
     .replace(/\bcos\b/g, '\\cos')
     .replace(/\btan\b/g, '\\tan')
     .replace(/\bsqrt\(([^)]+)\)/g, '\\sqrt{$1}')
+    .replace(/\blog\(([^,)]+),\s*([^)]+)\)/g, '\\log_{$2}($1)')
+    .replace(/\blog\(([^)]+)\)/g, '\\ln($1)')
 }
 
 function parseLimit(val: string, scope: Record<string, unknown>): number {
