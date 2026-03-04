@@ -8,7 +8,7 @@ interface Props{
 }
 
 function generateTraces(fns: string[], scope: Record<string, unknown>, colors: string[]){
-    const xs = Array.from({ length: 400 }, (_, i) => -10 + i * 0.05)
+    const xs = Array.from({ length: 800 }, (_, i) => -10 + i * 0.025)
 
     return fns.map((fn, i) => ({
       x: xs,
@@ -35,8 +35,6 @@ export default function MathPlot({ fns, scope }: Props) {
 
         const traces = generateTraces(fns, scope, colors);
 
-        const xRange = 20;
-
         Plotly.react(container, traces, {
             dragmode: 'pan',
             paper_bgcolor: 'transparent',
@@ -50,7 +48,7 @@ export default function MathPlot({ fns, scope }: Props) {
             yaxis: {
                 gridcolor: '#2a2a3a',
                 zerolinecolor: '#4a4a5a',
-                range: [-(xRange/ 2), xRange/ 2],
+                autorange: true,
                 scaleanchor: 'x',
                 scaleratio: 1,
             },
