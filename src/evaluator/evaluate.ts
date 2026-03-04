@@ -6,7 +6,8 @@ export type EvalResultType = 'value' | 'plot' | 'error';
 
 export interface ValueResult{
     type: 'value',
-    latex: string,
+    exprLatex: string,
+    resultLatex: string,
     raw: number | string
 }
 
@@ -80,7 +81,8 @@ function evalAssignment(stmt: AssignmentStatement, scope: Record<string, unknown
 
   return {
     type: 'value',
-    latex: `${toLatex(stmt.name)} = ${formatNum(val)}`,
+    exprLatex: `${toLatex(stmt.name)}`,
+    resultLatex: `= ${formatNum(val)}`,
     raw: val,
   }
 }
@@ -91,13 +93,15 @@ function evalExpression(stmt: ExpressionStatement, scope: Record<string, unknown
         
         return {
             type: 'value',
-            latex: `${toLatex(stmt.expr)} = ${formatNum(val)}`,
+            exprLatex: `${toLatex(stmt.expr)}`,
+            resultLatex: `= ${formatNum(val)}`,
             raw: val,
         }
     } catch {
         return {
             type: 'value',
-            latex: toLatex(stmt.expr),
+            exprLatex: toLatex(stmt.expr),
+            resultLatex: '',
             raw: stmt.expr,
         }
     }
@@ -121,7 +125,8 @@ function evalIntegral(stmt: IntegralStatement, scope: Record<string, unknown>): 
     const value = (h / 3) * sum;
     return {
         type: 'value',
-        latex: `\\int_{${numToLatex(a)}}^{${numToLatex(b)}} ${toLatex(stmt.expr)} \\, d${stmt.variable} = ${formatNum(value)}`,
+        exprLatex: `\\int_{${numToLatex(a)}}^{${numToLatex(b)}} ${toLatex(stmt.expr)} \\, d${stmt.variable}`,
+        resultLatex: `= ${formatNum(value)}`,
         raw: value
     }
 }
@@ -147,7 +152,8 @@ function evalLimit(stmt: LimitStatement, scope: Record<string, unknown>): ValueR
                           c === -Infinity ? '-\\infty' : stmt.approach;
     return {
         type: 'value',
-        latex: `\\lim_{${stmt.variable} \\to ${approachLatex}} ${toLatex(stmt.expr)} = ${formatNum(value)}`,
+        exprLatex: `\\lim_{${stmt.variable} \\to ${approachLatex}} ${toLatex(stmt.expr)}`,
+        resultLatex: `= ${formatNum(value)}`,
         raw: value
     }
 }
@@ -165,7 +171,8 @@ function evalSum(stmt: SumStatement, scope: Record<string, unknown>): ValueResul
 
     return {
         type: 'value',
-        latex:  `\\sum_{${stmt.variable}=${from}}^{${to}} ${toLatex(stmt.expr)} = ${formatNum(value)}`,
+        exprLatex:  `\\sum_{${stmt.variable}=${from}}^{${to}} ${toLatex(stmt.expr)}`,
+        resultLatex: `= ${formatNum(value)}`,
         raw: value
     }
 }
