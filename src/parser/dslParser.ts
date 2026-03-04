@@ -71,7 +71,7 @@ function parseStatement(raw: string): Statement{
 
     const plotMatch = raw.match(plotReg);
     if(plotMatch)
-        return {type: 'plot', fns: plotMatch[1].split(',').map(s => s.trim()), raw}
+        return {type: 'plot', fns: splitPlot(plotMatch[1]), raw}
 
     const intMatch = raw.match(integralReg);
     if(intMatch)
@@ -128,4 +128,26 @@ function splitStatements(inner: string):  string[]{
 
     if(current.trim()) statements.push(current.trim());
     return statements;
+}
+
+function splitPlot(inner: string): string[] {
+    const fns: string[] = []
+    let depth = 0
+    let current = ''
+
+    for (const char of inner) {
+      if (char === '(') depth++;
+      else if (char === ')') depth--;
+      else if (char === ',' && depth === 0) {
+        fns.push(current.trim());
+        current = '';
+        continue;
+      }
+      current += char;
+    }
+
+    if (current.trim()) 
+        fns.push(current.trim());
+
+    return fns;
 }
