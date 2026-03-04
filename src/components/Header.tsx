@@ -2,9 +2,11 @@ import useUIStore, { tabs, type Tab } from "@/store/uiStore"
 
 export default function Header() {
 
-    const setTab = useUIStore(state => state.setTab);
-    
     const tab = useUIStore(state => state.tab);
+    const setTab = useUIStore(state => state.setTab);
+
+    const docsOpen = useUIStore(state => state.docsOpen);
+    const toggleDocs = useUIStore(state => state.toggleDocs);
     
   return (
     <header className="flex flex-wrap items-center gap-4 px-4 md:px-6 h-auto md:h-13 py-2 md:py-0 border-b border-border bg-surface shrink-0">
@@ -13,6 +15,13 @@ export default function Header() {
             <span className="font-serif font-medium text-[18px] tracking-tight text-white">Mathmark</span>
             <span className="text-[10px] text-muted tracking-widest uppercase">Math Editor</span>
           </div>
+          <button
+          onClick={toggleDocs} 
+          className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
+          ${docsOpen ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
+          >
+            ?
+          </button>
           <nav className="flex flex-1 justify-center">
             <div className="flex gap-1 bg-bg border border-border rounded-lg p-0.75">
               {tabs.map(t => (
