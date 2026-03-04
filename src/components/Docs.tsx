@@ -14,26 +14,26 @@ const entries = [
 export default function Docs() {
     const docsOpen = useUIStore(state => state.docsOpen);
 
-    if(!docsOpen)
-        return;
-
     return (
-      <div>
-        <div className="border-b border-border bg-surface px-6 py-4 overflow-x-auto shrink-0">
-            <div className="flex items-center justify-between mb-3">
-                <span className="text-[9px] tracking-widest text-muted uppercase">Syntax Reference</span>
-                <span className="text-[9px] text-muted">Ctrl+/</span>
+      <div
+      className={`overflow-hidden transition-all duration-300 ease-in-out shrink-0 border-border bg-surface
+        ${docsOpen ? 'max-h-64 border-b' : 'max-h-0'}`}
+    >
+      <div className="px-6 py-4 overflow-x-auto">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[9px] tracking-widest text-muted uppercase">Syntax Reference</span>
+          <span className="text-[9px] text-muted">Ctrl+/</span>
+        </div>
+        <div className="flex gap-6 flex-wrap">
+          {entries.map((e) => (
+            <div key={e.category} className="flex flex-col gap-1 min-w-40">
+              <span className="text-[9px] tracking-widest text-accent uppercase">{e.category}</span>
+              <code className="text-xs text-text font-mono">{e.syntax}</code>
+              <code className="text-[10px] text-muted font-mono">{e.example}</code>
             </div>
-            <div className="flex gap-6 flex-wrap">
-                {entries.map((e) => (
-                  <div key={e.category} className="flex flex-col gap-1 min-w-40">
-                    <span className="text-[9px] tracking-widest text-accent uppercase">{e.category}</span>
-                    <code className="text-xs text-neutral-200 font-mono">{e.syntax}</code>
-                    <code className="text-[10px] text-muted font-mono">{e.example}</code>
-                  </div>
-                ))}
-            </div>
+          ))}
         </div>
       </div>
+    </div>
     )
 }

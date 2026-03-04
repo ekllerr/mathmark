@@ -13,6 +13,7 @@
   --color-accent: #7DF9AA;
   --color-accent2: #60CFFF;
   --color-muted: #5a5a78;
+  --color-text: #e5e5e5
 }
 
 @layer base {
