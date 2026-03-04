@@ -20,7 +20,7 @@ export default function Header() {
           className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
           ${docsOpen ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
           >
-            ?
+            Docs
           </button>
           <nav className="flex flex-1 justify-center">
             <div className="flex gap-1 bg-bg border border-border rounded-lg p-0.75">

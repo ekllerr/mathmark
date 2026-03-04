@@ -180,15 +180,20 @@ function formatNum(val: unknown): string {
 }
 
 function toLatex(expr: string): string {
-  return expr
-    .replace(/(\w+)\s*\*\s*(\w+)/g, '$1 \\cdot $2')
-    .replace(/\bpi\b/g, '\\pi')
-    .replace(/\bsin\b/g, '\\sin')
-    .replace(/\bcos\b/g, '\\cos')
-    .replace(/\btan\b/g, '\\tan')
-    .replace(/\bsqrt\(([^)]+)\)/g, '\\sqrt{$1}')
-    .replace(/\blog\(([^,)]+),\s*([^)]+)\)/g, '\\log_{$2}($1)')
-    .replace(/\blog\(([^)]+)\)/g, '\\ln($1)')
+    try{
+        return math.parse(expr).toTex();
+    }
+    catch{
+        return expr
+          .replace(/(\w+)\s*\*\s*(\w+)/g, '$1 \\cdot $2')
+          .replace(/\bpi\b/g, '\\pi')
+          .replace(/\bsin\b/g, '\\sin')
+          .replace(/\bcos\b/g, '\\cos')
+          .replace(/\btan\b/g, '\\tan')
+          .replace(/\bsqrt\(([^)]+)\)/g, '\\sqrt{$1}')
+          .replace(/\blog\(([^,)]+),\s*([^)]+)\)/g, '\\log_{$2}($1)')
+          .replace(/\blog\(([^)]+)\)/g, '\\ln($1)')
+    }
 }
 
 function parseLimit(val: string, scope: Record<string, unknown>): number {
