@@ -56,7 +56,7 @@ export default function MathPlot({ fns, scope }: Props) {
             },
             showlegend: fns.length > 1,
             legend: { bgcolor: 'transparent' },
-        }, { displayModeBar: true, responsive: true})
+        }, { displayModeBar: true, responsive: true, displaylogo: false})
 
         return () => { Plotly.purge(container) }
     }, [fns]);

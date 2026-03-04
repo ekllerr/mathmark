@@ -33,6 +33,12 @@ export default function Header() {
               ))}
             </div>
           </nav>
+          <button
+            onClick={() => window.print()}
+            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer"
+          >
+            export
+          </button>
           <a
             className="flex items-center gap-1.5 text-[11px] text-muted tracking-wide no-underline hover:text-accent transition-colors"
             href="https://github.com/ekllerr/mathmark"

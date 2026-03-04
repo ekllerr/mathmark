@@ -16,6 +16,36 @@
   --color-text: #e5e5e5
 }
 
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .preview-scroll,
+  .preview-scroll * {
+    visibility: visible;
+  }
+
+  .preview-scroll {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .math-block {
+    background: none !important;
+    border: none !important;
+    border-left: none !important;
+    padding: 0 !important;
+    margin: 0.5rem 0 !important;
+  }
+
+  .math-block button {
+    display: none !important;
+  }
+}
+
 @layer base {
   .prose {
     font-family: var(--font-mono);
