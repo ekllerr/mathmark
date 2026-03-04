@@ -27,7 +27,7 @@ export default function MathBlock({inner}: Props) {
 
                 if(result.type === 'plot'){
                     return (
-                        <MathPlot key={i} fns={result.fns}/>
+                        <MathPlot key={i} fns={result.fns} scope={result.scope}/>
                     );
                 }
                 return (

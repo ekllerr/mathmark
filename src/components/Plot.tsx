@@ -4,56 +4,61 @@ import Plotly from 'plotly.js-dist-min';
 
 interface Props{
     fns: string[];
+    scope: Record<string, unknown>
 }
 
-export default function MathPlot({fns }: Props) {
+function generateTraces(fns: string[], scope: Record<string, unknown>, colors: string[]){
+    const xs = Array.from({ length: 400 }, (_, i) => -10 + i * 0.05)
+
+    return fns.map((fn, i) => ({
+      x: xs,
+      y: xs.map(x => {
+        try { return parseFloat(String(math.evaluate(fn, { ...scope, x }))) }
+        catch { return null }
+      }),
+      type: 'scatter' as const,
+      mode: 'lines' as const,
+      name: fn,
+      line: { color: colors[i % colors.length], width: 2.5 },
+    }))
+}
+
+export default function MathPlot({ fns, scope }: Props) {
 
     const ref = useRef<HTMLDivElement>(null);
     const colors = ['#7DF9AA', '#60CFFF', '#FF6B9D', '#FFD166', '#C77DFF'];
 
     useEffect(() => {
-  if (!ref.current) return
+        if (!ref.current) return
 
-  const container = ref.current
+        const container = ref.current
 
-  const xs = Array.from({ length: 400 }, (_, i) => -10 + i * 0.05)
+        const traces = generateTraces(fns, scope, colors);
 
-  const traces = fns.map((fn, i) => ({
-        x: xs,
-        y: xs.map(x => {
-          try { return parseFloat(String(math.evaluate(fn, { x }))) }
-          catch { return null }
-        }),
-        type: 'scatter' as const,
-        mode: 'lines' as const,
-        name: fn,
-        line: { color: colors[i % colors.length], width: 2.5 },
-    }))
+        const xRange = 20;
 
-    const xRange = 20;
+        Plotly.react(container, traces, {
+            dragmode: 'pan',
+            paper_bgcolor: 'transparent',
+            plot_bgcolor: 'transparent',
+            font: { color: '#c8c8d0', family: 'IBM Plex Mono, monospace', size: 11 },
+            margin: { t: 20, b: 36, l: 44, r: 12 },
+            xaxis: { 
+                gridcolor: '#2a2a3a', 
+                zerolinecolor: '#4a4a5a',
+            },
+            yaxis: {
+                gridcolor: '#2a2a3a',
+                zerolinecolor: '#4a4a5a',
+                range: [-(xRange/ 2), xRange/ 2],
+                scaleanchor: 'x',
+                scaleratio: 1,
+            },
+            showlegend: fns.length > 1,
+            legend: { bgcolor: 'transparent' },
+        }, { displayModeBar: true, responsive: true})
 
-    Plotly.react(container, traces, {
-        dragmode: 'pan',
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        font: { color: '#c8c8d0', family: 'IBM Plex Mono, monospace', size: 11 },
-        margin: { t: 20, b: 36, l: 44, r: 12 },
-        xaxis: { 
-            gridcolor: '#2a2a3a', 
-            zerolinecolor: '#4a4a5a',
-        },
-        yaxis: {
-            gridcolor: '#2a2a3a',
-            zerolinecolor: '#4a4a5a',
-            range: [-(xRange/ 2), xRange/ 2],
-            scaleanchor: 'x',
-            scaleratio: 1,
-        },
-        showlegend: fns.length > 1,
-        legend: { bgcolor: 'transparent' },
-    }, { displayModeBar: true, responsive: true})
-
-    return () => { Plotly.purge(container) }
+        return () => { Plotly.purge(container) }
     }, [fns]);
 
     return (

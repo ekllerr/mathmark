@@ -13,6 +13,7 @@ export interface ValueResult{
 export interface PlotResult{
     type: 'plot',
     fns: string[]
+    scope: Record<string, unknown>
 }
 
 export interface ErrorResult{
@@ -40,7 +41,7 @@ export function evaluateBlock(statements: Statement[]) : EvalResult[] {
                 }
 
                 case 'plot': {
-                    results.push({type: 'plot', fns: stmt.fns});
+                    results.push({type: 'plot', fns: stmt.fns, scope: {...scope}});
                     break;
                 }
 
