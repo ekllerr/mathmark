@@ -1,4 +1,10 @@
 import useUIStore, { tabs, type Tab } from "@/store/uiStore"
+import useEditorStore from "@/store/editor";
+import { createShareUrl } from "@/utils/share";
+import { useState } from "react";
+
+// chat apps and email clients often cut links longer than this
+const LONG_LINK = 2000;
 
 export default function Header() {
 
@@ -7,6 +13,31 @@ export default function Header() {
 
     const docsOpen = useUIStore(state => state.docsOpen);
     const toggleDocs = useUIStore(state => state.toggleDocs);
+
+    const hasContent = useEditorStore(state => state.content.trim() !== '');
+    const [shareStatus, setShareStatus] = useState<string | null>(null);
+
+    const share = async () => {
+      let status: string;
+
+      try {
+        const url = await createShareUrl(useEditorStore.getState().content);
+
+        try {
+          await navigator.clipboard.writeText(url);
+          status = url.length > LONG_LINK ? 'copied (long link)' : 'link copied';
+        }
+        catch {
+          // no clipboard access: leave the link in the address bar to copy by hand
+          history.replaceState(null, '', url);
+          status = 'link in address bar';
+        }
+      }
+      catch { status = 'share failed' }
+
+      setShareStatus(status);
+      setTimeout(() => setShareStatus(null), 2500);
+    }
     
   return (
     <header className="flex flex-wrap items-center gap-4 px-4 md:px-6 h-auto md:h-13 py-2 md:py-0 border-b border-border bg-surface shrink-0">
@@ -34,10 +65,28 @@ export default function Header() {
             </div>
           </nav>
           <button
-            onClick={() => window.print()}
-            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer"
+            onClick={share}
+            disabled={!hasContent}
+            title="Copy a link that contains this document"
+            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted"
           >
-            export
+            {shareStatus ?? 'share'}
+          </button>
+          <button
+            onClick={async () => (await import('@/utils/exportPdf')).exportToPdf()}
+            disabled={tab === 'editor'}
+            title={tab === 'editor' ? 'Switch to split or preview to export' : undefined}
+            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted"
+          >
+            export pdf
+          </button>
+          <button
+            onClick={() => window.print()}
+            disabled={tab === 'editor'}
+            title={tab === 'editor' ? 'Switch to split or preview to print' : undefined}
+            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted"
+          >
+            print 
           </button>
           <a
             className="flex items-center gap-1.5 text-[11px] text-muted tracking-wide no-underline hover:text-accent transition-colors"

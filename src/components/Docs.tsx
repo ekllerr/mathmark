@@ -3,12 +3,19 @@ import useUIStore from "@/store/uiStore"
 const entries = [
   { category: 'Assignment', syntax: 'a = 2', example: '${ a = 2, b = 3, a * b }' },
   { category: 'Expression', syntax: 'sin(pi/6)', example: '${ sin(pi/6) }' },
+  { category: 'Function', syntax: 'f(x) = expr', example: '${ f(x) = x^2 + 1, f(3) }' },
   { category: 'Plot', syntax: 'plot(fn)', example: '${ plot(sin(x), cos(x)) }' },
   { category: 'Integral', syntax: 'int(a, b) expr dx', example: '${ int(0, 1) x^2 dx }' },
+  { category: 'Derivative', syntax: 'diff(x) expr, diff(x, a) expr', example: '${ diff(x) x^2 * sin(x) }' },
   { category: 'Limit', syntax: 'lim(x->c) expr', example: '${ lim(x->0) sin(x)/x }' },
   { category: 'Sum', syntax: 'sum(i, a, b) expr', example: '${ sum(i, 1, 10) i^2 }' },
   { category: 'Logarithm', syntax: 'ln(x), lg(x)', example: '${ ln(e), lg(100) }' },
   { category: 'Infinity', syntax: 'inf, -inf', example: '${ lim(x->inf) 1/x }' },
+  { category: 'Absolute value', syntax: 'abs(x)', example: '${ abs(-5) }' }, 
+  { category: 'Factorial', syntax: 'n!', example: '${ 5! }' },
+  { category: 'Combinations', syntax: 'C(n, k)', example: '${ C(5, 2) }' },
+  { category: 'Permutations', syntax: 'P(n, k), P(n)', example: '${ P(5, 2) }' },
+  { category: 'Counting numbers', syntax: 'catalan(n), bellNumbers(n), stirlingS2(n, k)', example: '${ catalan(5) }' },
 ]
 
 export default function Docs() {

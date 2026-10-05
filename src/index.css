@@ -44,6 +44,40 @@
   .math-block button {
     display: none !important;
   }
+
+  /* plots are drawn for the dark theme: recolour them for white paper */
+  .preview-scroll {
+    .js-plotly-plot text { fill: #333 !important; }
+    .js-plotly-plot .gridlayer path { stroke: #ddd !important; }
+    .js-plotly-plot .zerolinelayer path { stroke: #888 !important; }
+    .js-plotly-plot .scatterlayer .trace:nth-child(5n+1) .js-line,
+    .js-plotly-plot .legend .traces:nth-child(5n+1) .legendlines path { stroke: #0f9d58 !important; }
+    .js-plotly-plot .scatterlayer .trace:nth-child(5n+2) .js-line,
+    .js-plotly-plot .legend .traces:nth-child(5n+2) .legendlines path { stroke: #1a73e8 !important; }
+    .js-plotly-plot .scatterlayer .trace:nth-child(5n+3) .js-line,
+    .js-plotly-plot .legend .traces:nth-child(5n+3) .legendlines path { stroke: #d81b60 !important; }
+    .js-plotly-plot .scatterlayer .trace:nth-child(5n+4) .js-line,
+    .js-plotly-plot .legend .traces:nth-child(5n+4) .legendlines path { stroke: #e37400 !important; }
+    .js-plotly-plot .scatterlayer .trace:nth-child(5n+5) .js-line,
+    .js-plotly-plot .legend .traces:nth-child(5n+5) .legendlines path { stroke: #8e24aa !important; }
+  }
+}
+
+/* same recolouring for the off-screen copy that exportToPdf renders */
+.pdf-export {
+  .js-plotly-plot text { fill: #333 !important; }
+  .js-plotly-plot .gridlayer path { stroke: #ddd !important; }
+  .js-plotly-plot .zerolinelayer path { stroke: #888 !important; }
+  .js-plotly-plot .scatterlayer .trace:nth-child(5n+1) .js-line,
+  .js-plotly-plot .legend .traces:nth-child(5n+1) .legendlines path { stroke: #0f9d58 !important; }
+  .js-plotly-plot .scatterlayer .trace:nth-child(5n+2) .js-line,
+  .js-plotly-plot .legend .traces:nth-child(5n+2) .legendlines path { stroke: #1a73e8 !important; }
+  .js-plotly-plot .scatterlayer .trace:nth-child(5n+3) .js-line,
+  .js-plotly-plot .legend .traces:nth-child(5n+3) .legendlines path { stroke: #d81b60 !important; }
+  .js-plotly-plot .scatterlayer .trace:nth-child(5n+4) .js-line,
+  .js-plotly-plot .legend .traces:nth-child(5n+4) .legendlines path { stroke: #e37400 !important; }
+  .js-plotly-plot .scatterlayer .trace:nth-child(5n+5) .js-line,
+  .js-plotly-plot .legend .traces:nth-child(5n+5) .legendlines path { stroke: #8e24aa !important; }
 }
 
 @layer base {

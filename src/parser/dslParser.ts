@@ -1,3 +1,5 @@
+import { findClosing, splitTopLevel } from "./brackets";
+
 export interface AssignmentStatement{
     type: 'assignment',
     name: string,
@@ -43,8 +45,26 @@ export interface SumStatement{
     raw: string
 }
 
+export interface FunctionStatement{
+    type: 'function',
+    name: string,
+    params: string[],
+    body: string,
+    raw: string
+}
+
+export interface DerivativeStatement{
+    type: 'derivative',
+    variable: string,
+    at: string | null, //point to evaluate at, null for the symbolic derivative
+    expr: string,
+    raw: string
+}
+
 export type Statement =
     | AssignmentStatement
+    | FunctionStatement
+    | DerivativeStatement
     | PlotStatement
     | IntegralStatement
     | LimitStatement
@@ -52,102 +72,72 @@ export type Statement =
     | SumStatement
 
 export function parseStatements(inner: string): Statement[]{
-   return splitStatements(inner)
-    .map(s => s.trim())
-    .filter(Boolean)
-    .map(parseStatement);
+   return splitTopLevel(inner).map(parseStatement);
+}
+
+const IDENTIFIER = /^[a-zA-Z_]\w*$/;
+const VARIABLE = /^[a-z]$/;
+
+interface Call{
+    name: string,
+    args: string[],
+    rest: string //whatever follows the closing parenthesis
+}
+
+// reads a leading `name(arg, ...)`; the arguments may themselves contain brackets and commas
+function readCall(raw: string): Call | null {
+    const head = raw.match(/^([a-zA-Z_]\w*)\(/);
+    if(!head) return null;
+
+    const open = head[0].length - 1;
+    const close = findClosing(raw, open);
+    if(close === -1) return null;
+
+    return {
+        name: head[1],
+        args: splitTopLevel(raw.slice(open + 1, close)),
+        rest: raw.slice(close + 1).trim()
+    }
 }
 
 function parseStatement(raw: string): Statement{
-    const assingReg = /^([a-zA-Z_]\w*)\s*=\s*(.+)$/;
-    const plotReg = /^plot\((.+)\)$/;
-    const integralReg = /^int\(([^,]+),([^)]+)\)\s+(.+?)\s+d([a-z])$/;
-    const limitReg = /^lim\(([a-z])->([^)]+)\)\s+(.+)$/;
-    const sumReg = /^sum\(([a-z]),([^,]+),([^)]+)\)\s+(.+)$/;
-
-    const assignMatch = raw.match(assingReg);
+    const assignMatch = raw.match(/^([a-zA-Z_]\w*)\s*=(?!=)\s*([\s\S]+)$/);
     if(assignMatch)
         return {type: 'assignment', name: assignMatch[1], value: assignMatch[2].trim(), raw}
 
-    const plotMatch = raw.match(plotReg);
-    if(plotMatch)
-        return {type: 'plot', fns: splitPlot(plotMatch[1]), raw}
-
-    const intMatch = raw.match(integralReg);
-    if(intMatch)
-        return {
-            type: 'integral',
-            from: intMatch[1].trim(),
-            to: intMatch[2].trim(),
-            expr: intMatch[3].trim(),
-            variable: intMatch[4],
-            raw
-        }
-
-    const limMatch = raw.match(limitReg)
-    if(limMatch)
-        return {
-            type: 'limit',
-            variable: limMatch[1],
-            approach: limMatch[2].trim(),
-            expr: limMatch[3].trim(),
-            raw
-        }
-
-    const sumMatch = raw.match(sumReg)
-    if (sumMatch) {
-      return {
-        type: 'sum',
-        variable: sumMatch[1],
-        from: sumMatch[2].trim(),
-        to: sumMatch[3].trim(),
-        expr: sumMatch[4].trim(),
-        raw
-      }
-    }
+    const call = readCall(raw);
+    if(call)
+        return parseCall(call, raw) ?? {type: 'expression', expr: raw, raw}
 
     return {type: 'expression', expr: raw, raw}
 }
 
-function splitStatements(inner: string):  string[]{
-    const statements: string[] = [];
-    let depth = 0;
-    let current = '';
+// the DSL forms that start with `name(...)`; null means it is an ordinary expression
+function parseCall({ name, args, rest }: Call, raw: string): Statement | null {
+    const definition = rest.match(/^=(?!=)\s*([\s\S]+)$/);
+    if(definition && args.length > 0 && args.every(arg => IDENTIFIER.test(arg)))
+        return {type: 'function', name, params: args, body: definition[1].trim(), raw}
 
-    for(const char of inner){
-        if(char === '(') depth++;
-        else if(char === ')') depth--;
-        else if(char === ',' && depth === 0){
-            statements.push(current.trim())
-            current = '';
-            continue;
-        }
+    if(name === 'plot' && rest === '' && args.length > 0)
+        return {type: 'plot', fns: args, raw}
 
-        current += char;
+    if(name === 'diff' && rest && (args.length === 1 || args.length === 2) && VARIABLE.test(args[0]))
+        return {type: 'derivative', variable: args[0], at: args[1] ?? null, expr: rest, raw}
+
+    if(name === 'int' && args.length === 2){
+        const body = rest.match(/^([\s\S]+?)\s+d([a-z])$/);
+        if(body)
+            return {type: 'integral', from: args[0], to: args[1], expr: body[1].trim(), variable: body[2], raw}
     }
 
-    if(current.trim()) statements.push(current.trim());
-    return statements;
-}
-
-function splitPlot(inner: string): string[] {
-    const fns: string[] = []
-    let depth = 0
-    let current = ''
-
-    for (const char of inner) {
-      if (char === '(') depth++;
-      else if (char === ')') depth--;
-      else if (char === ',' && depth === 0) {
-        fns.push(current.trim());
-        current = '';
-        continue;
-      }
-      current += char;
+    if(name === 'lim' && rest && args.length === 1){
+        const approach = args[0].match(/^([a-z])\s*->\s*([\s\S]+)$/);
+        if(approach)
+            return {type: 'limit', variable: approach[1], approach: approach[2].trim(), expr: rest, raw}
     }
 
-    if (current.trim()) 
-        fns.push(current.trim());
+    if(name === 'sum' && rest && args.length === 3 && VARIABLE.test(args[0]))
+        return {type: 'sum', variable: args[0], from: args[1], to: args[2], expr: rest, raw}
 
-    return fns;
+    return null;
 }

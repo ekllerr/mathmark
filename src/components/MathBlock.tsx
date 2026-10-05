@@ -1,25 +1,24 @@
-import { evaluateBlock } from "@/evaluator/evaluate";
-import { parseStatements } from "@/parser/dslParser"
+import type { EvalResult } from "@/evaluator/evaluate";
 import katex from "katex";
 import MathPlot from "@/components/Plot";
-import { useState } from "react";
+import { memo, useState } from "react";
 import 'katex/dist/katex.min.css'
 
 interface Props {
-  inner: string
+  results: EvalResult[]
 }
 
 const renderLatex = (latex: string) =>
   katex.renderToString(latex, { throwOnError: false, displayMode: true, output: 'html' })
 
-export default function MathBlock({inner}: Props) {
+// memoised: a block re-renders only when its own results change, not on every keystroke
+export default memo(function MathBlock({results}: Props) {
 
     const [calculated, setCalculated] = useState<boolean>(false);
-    const statements = parseStatements(inner);
-    const results = evaluateBlock(statements);
 
   return (
     <div className="math-block relative bg-surface border border-border border-l-4 border-l-accent rounded-md px-5 py-4 my-4 overflow-x-auto">
+
       <button
         onClick={() => setCalculated(c => !c)}
         className={`absolute top-3 right-3 font-mono text-[9px] tracking-widest uppercase px-2 py-1 rounded border transition-colors cursor-pointer
@@ -27,6 +26,7 @@ export default function MathBlock({inner}: Props) {
       >
         {calculated ? '= on' : '= off'}
       </button>
+
 
       {results.map((result, i) => {
         if (result.type === 'error') {
@@ -55,4 +55,4 @@ export default function MathBlock({inner}: Props) {
       })}
     </div>
   )
-}
+})
