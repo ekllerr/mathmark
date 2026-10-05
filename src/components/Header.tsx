@@ -34,10 +34,20 @@ export default function Header() {
             </div>
           </nav>
           <button
-            onClick={() => window.print()}
-            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer"
+            onClick={async () => (await import('@/utils/exportPdf')).exportToPdf()}
+            disabled={tab === 'editor'}
+            title={tab === 'editor' ? 'Switch to split or preview to export' : undefined}
+            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted"
           >
-            export
+            export pdf
+          </button>
+          <button
+            onClick={() => window.print()}
+            disabled={tab === 'editor'}
+            title={tab === 'editor' ? 'Switch to split or preview to print' : undefined}
+            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted"
+          >
+            print 
           </button>
           <a
             className="flex items-center gap-1.5 text-[11px] text-muted tracking-wide no-underline hover:text-accent transition-colors"

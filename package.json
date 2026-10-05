@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
+    "dom-to-image-more": "^3.7.2",
+    "jspdf": "^4.2.0",
     "katex": "^0.16.33",
     "marked": "^17.0.3",
     "mathjs": "^15.1.1",
