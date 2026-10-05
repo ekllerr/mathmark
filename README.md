@@ -23,6 +23,8 @@ Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }`
 - **Limits** - `lim(x->c) expr`
 - **Combinatorics** - `n!`, `C(n,k)`, `P(n,k)`
 - **Split / Editor / Preview** modes
+- **Autosave** - your notes are kept in the browser and are there when you come back
+- **Share by link** - the document is compressed into the URL, no server involved
 - **Fully client-side**
 
 ---
@@ -101,6 +103,12 @@ ${ P(5, 2), P(4) }
 | `stirlingS2(n, k)` | Stirling number of the second kind |
 
 `C` and `P` need non-negative integers with `k ≤ n`.
+
+## Saving & Sharing
+
+Your document is saved in the browser (`localStorage`) on every change, so you can close the tab and resume later on the same browser and device.
+
+**Share** copies a link with the whole document compressed into the part of the URL after `#`, which is never sent to a server. Opening a link when you already have different notes saved asks before replacing them. Very long documents make long links, which some chat and email apps cut short.
 
 ---
 

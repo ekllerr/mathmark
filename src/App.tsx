@@ -3,6 +3,7 @@ import Main from "@/components/Main"
 import useUIStore from "@/store/uiStore";
 import { useEffect } from "react";
 import Docs from "./components/Docs";
+import SharedDocument from "./components/SharedDocument";
 
 function App() {
 
@@ -39,6 +40,7 @@ function App() {
       <Header />
       <Docs />
       <Main /> 
+      <SharedDocument />
     </div>
   )
 }

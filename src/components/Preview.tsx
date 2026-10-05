@@ -2,17 +2,19 @@ import { parseBlocks } from "@/parser/blockParser";
 import { createDocumentEvaluator } from "@/evaluator/evaluate";
 import useEditorStore from "@/store/editor"
 import { marked } from "marked";
+import DOMPurify from "dompurify";
 import { memo, useMemo, useState } from "react";
 import MathBlock from "./MathBlock";
 
 marked.setOptions({ breaks: true });
 
-// memoised: markdown is re-parsed only for the stretch of prose that was edited
+// memoised: markdown is re-parsed only for the stretch of prose that was edited.
+// The HTML is sanitised because a share link can carry a document written by someone else.
 const Prose = memo(function Prose({ text }: { text: string }) {
     return (
         <div
             className="prose prose-invert prose-sm max-w-none font-light"
-            dangerouslySetInnerHTML={{__html: marked.parse(text, { async: false })}}
+            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(marked.parse(text, { async: false }))}}
         />
     );
 });
