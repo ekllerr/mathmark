@@ -13,24 +13,37 @@ export function findClosing(text: string, open: number): number {
     return -1;
 }
 
-// splits on commas that are not inside any (), [] or {}
-export function splitTopLevel(text: string): string[] {
-    const parts: string[] = [];
+export interface Part{
+    text: string, // trimmed
+    start: number, // where the trimmed text begins in the original
+    end: number
+}
+
+// splits on commas that are not inside any (), [] or {}, keeping track of where each part sits
+export function splitTopLevelParts(text: string): Part[] {
+    const parts: Part[] = [];
     let depth = 0;
-    let current = '';
+    let from = 0;
 
-    for(const char of text){
-        if(OPEN.includes(char)) depth++;
-        else if(CLOSE.includes(char)) depth--;
-        else if(char === ',' && depth === 0){
-            parts.push(current.trim());
-            current = '';
-            continue;
-        }
-
-        current += char;
+    const push = (to: number) => {
+        const raw = text.slice(from, to);
+        const start = from + (raw.length - raw.trimStart().length);
+        parts.push({ text: raw.trim(), start, end: start + raw.trim().length });
     }
 
-    if(current.trim()) parts.push(current.trim());
+    for(let i = 0; i < text.length; i++){
+        if(OPEN.includes(text[i])) depth++;
+        else if(CLOSE.includes(text[i])) depth--;
+        else if(text[i] === ',' && depth === 0){
+            push(i);
+            from = i + 1;
+        }
+    }
+
+    if(text.slice(from).trim()) push(text.length);
     return parts;
+}
+
+export function splitTopLevel(text: string): string[] {
+    return splitTopLevelParts(text).map(part => part.text);
 }

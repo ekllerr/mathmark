@@ -1,4 +1,6 @@
 import type { EvalResult } from "@/evaluator/evaluate";
+import { resultToLatex } from "@/evaluator/latex";
+import useUIStore from "@/store/uiStore";
 import katex from "katex";
 import MathPlot from "@/components/Plot";
 import { memo, useState } from "react";
@@ -15,6 +17,8 @@ const renderLatex = (latex: string) =>
 export default memo(function MathBlock({results}: Props) {
 
     const [calculated, setCalculated] = useState<boolean>(false);
+    const exact = useUIStore(state => state.exact);
+    const steps = useUIStore(state => state.steps);
 
   return (
     <div className="math-block relative bg-surface border border-border border-l-4 border-l-accent rounded-md px-5 py-4 my-4 overflow-x-auto">
@@ -41,15 +45,11 @@ export default memo(function MathBlock({results}: Props) {
           return <MathPlot key={i} fns={result.fns} scope={result.scope} />
         }
 
-        const latex = calculated
-          ? `${result.exprLatex} ${result.resultLatex}`
-          : result.exprLatex
-
         return (
           <div
             key={i}
             className="py-1.5 border-b border-border last:border-none print:border-none"
-            dangerouslySetInnerHTML={{ __html: renderLatex(latex) }}
+            dangerouslySetInnerHTML={{ __html: renderLatex(resultToLatex(result, calculated, exact, steps)) }}
           />
         )
       })}

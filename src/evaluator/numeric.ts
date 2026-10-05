@@ -139,8 +139,9 @@ function limitAtZero(g: RealFunction, h0: number): SideLimit {
     return { kind: 'value', value: bestErr === 0 ? best : Math.round(best * 10 ** digits) / 10 ** digits };
 }
 
-// limit of f(x) as x -> c, where c may be infinite; throws when there is no limit
-export function limit(f: RealFunction, c: number): number {
+// limit of f(x) as x -> c, where c may be infinite; throws when there is no limit.
+// `side` restricts a finite limit to x approaching from the left or from the right.
+export function limit(f: RealFunction, c: number, side: 'left' | 'right' | null = null): number {
     const describe = (v: number) => isFinite(v) ? String(Math.round(v * 1e10) / 1e10) : (v > 0 ? '∞' : '-∞');
     const noLimit = new Error('limit does not exist, or could not be determined numerically');
 
@@ -151,6 +152,13 @@ export function limit(f: RealFunction, c: number): number {
     }
 
     const h0 = 0.125 * Math.max(1, Math.abs(c));
+
+    if(side){
+        const oneSided = limitAtZero(h => f(side === 'left' ? c - h : c + h), h0);
+        if(oneSided.kind !== 'value') throw noLimit;
+        return oneSided.value;
+    }
+
     const left = limitAtZero(h => f(c - h), h0);
     const right = limitAtZero(h => f(c + h), h0);
 
