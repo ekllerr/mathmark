@@ -1,6 +1,7 @@
 import useUIStore, { tabs, type Tab } from "@/store/uiStore"
 import useEditorStore from "@/store/editor";
 import { createShareUrl } from "@/utils/share";
+import { download, fileName } from "@/utils/files";
 import { THEMES } from "@/themes";
 import { useState } from "react";
 import HeaderToggle from "./HeaderToggle";
@@ -121,6 +122,17 @@ export default function Header() {
             <Popover label="Export" button={<><ExportIcon /><span className="hidden lg:inline">Export</span></>}>
               {close => (
                 <>
+                  <button
+                    onClick={() => {
+                      close();
+                      const { content } = useEditorStore.getState();
+                      download(fileName(content, 'md'), content, 'text/markdown');
+                    }}
+                    disabled={!hasContent}
+                    className={menuItem}
+                  >
+                    Save as Markdown (.md)
+                  </button>
                   <button
                     onClick={async () => { close(); (await import('@/utils/exportPdf')).exportToPdf(); }}
                     disabled={noPreview}
