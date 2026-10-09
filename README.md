@@ -181,6 +181,12 @@ Notes saved in a browser are lost if its site data is cleared, so the list also 
 
 **Share** copies a link with the current document compressed into the part of the URL after `#`, which is never sent to a server. Opening a link adds it as a new document; your own notes are left as they were. Very long documents make long links, which some chat and email apps cut short.
 
+## Offline & Installing
+
+After the first visit Mathmark works without a connection: the app is stored by the browser, and plotting and PDF export are stored the first time each is used. It can also be installed from the browser's menu ("Install" or "Add to Home Screen") and then opens in its own window.
+
+When a new version has been published, a notice offers to reload; nothing changes under you while you are writing.
+
 ## Themes & Printing
 
 The theme button in the header offers six themes: Midnight, Graphite, Nord and Dusk (dark), Paper and Sepia (light). The choice is remembered. Printing and PDF export always use Paper.
