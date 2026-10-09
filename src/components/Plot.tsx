@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import type { Layout, PlotlyHTMLElement, PlotRelayoutEvent } from 'plotly.js';
 import { realFunction } from '@/evaluator/evaluate';
-import useUIStore, { type Theme } from '@/store/uiStore';
+import useUIStore from '@/store/uiStore';
 
 interface Props{
     fns: string[];
@@ -11,11 +11,6 @@ interface Props{
 type Plotly = typeof import('plotly.js-dist-min').default;
 
 const SAMPLES = 800;
-
-const PALETTE = {
-  dark: { text: '#c8c8d0', grid: '#2a2a3a', zero: '#4a4a5a', lines: ['#7DF9AA', '#60CFFF', '#FF6B9D', '#FFD166', '#C77DFF'] },
-  light: { text: '#333333', grid: '#dddddd', zero: '#888888', lines: ['#0f9d58', '#1a73e8', '#d81b60', '#e37400', '#8e24aa'] },
-};
 
 function createLayout(): Partial<Layout> {
   return {
@@ -30,16 +25,20 @@ function createLayout(): Partial<Layout> {
   }
 }
 
-// colours are set on the existing layout, which also carries the current pan position
-function applyPalette(layout: Partial<Layout>, theme: Theme) {
-  const { text, grid, zero } = PALETTE[theme]
+// The theme's plot colours, read from the --plot-* variables in index.css.
+// They are set on the existing layout, which also carries the current pan position.
+function applyPalette(layout: Partial<Layout>, element: HTMLElement): string[] {
+  const style = getComputedStyle(element)
+  const color = (name: string) => style.getPropertyValue(`--plot-${name}`).trim()
 
-  layout.font = { ...layout.font, color: text }
+  layout.font = { ...layout.font, color: color('text') }
   for (const axis of [layout.xaxis, layout.yaxis]) {
     if (!axis) continue
-    axis.gridcolor = grid
-    axis.zerolinecolor = zero
+    axis.gridcolor = color('grid')
+    axis.zerolinecolor = color('zero')
   }
+
+  return [1, 2, 3, 4, 5].map(n => color(String(n)))
 }
 
 export default function MathPlot({ fns, scope }: Props) {
@@ -67,6 +66,8 @@ export default function MathPlot({ fns, scope }: Props) {
         const step = (xMax - xMin) / SAMPLES
         const xs = Array.from({ length: SAMPLES }, (_, i) => xMin + i * step)
 
+        const lines = applyPalette(layoutRef.current, ref.current)
+
         const traces = curves.map((curve, i) => ({
           x: xs,
           y: xs.map(x => {
@@ -79,11 +80,10 @@ export default function MathPlot({ fns, scope }: Props) {
           type: 'scatter' as const,
           mode: 'lines' as const,
           name: fns[i],
-          line: { color: PALETTE[theme].lines[i % PALETTE[theme].lines.length], width: 2.5 },
+          line: { color: lines[i % lines.length], width: 2.5 },
         }))
 
         layoutRef.current.showlegend = fns.length > 1
-        applyPalette(layoutRef.current, theme)
 
         return Plotly.react(ref.current, traces, layoutRef.current, {
           responsive: true,
@@ -93,7 +93,7 @@ export default function MathPlot({ fns, scope }: Props) {
       }
 
       drawRef.current()
-    }, [curves, fns, theme])
+    }, [curves, fns, theme]) // theme: the colours are read again when it changes
 
     // Plotly is large, so it is loaded only once a plot is actually on screen
     useEffect(() => {

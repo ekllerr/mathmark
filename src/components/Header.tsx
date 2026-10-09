@@ -1,10 +1,17 @@
 import useUIStore, { tabs, type Tab } from "@/store/uiStore"
 import useEditorStore from "@/store/editor";
 import { createShareUrl } from "@/utils/share";
+import { THEMES } from "@/themes";
 import { useState } from "react";
+import HeaderToggle from "./HeaderToggle";
+import Popover from "./Popover";
+import { CheckIcon, ExportIcon, GitHubIcon, HelpIcon, NotesIcon, ShareIcon, ThemeIcon } from "./icons";
 
 // chat apps and email clients often cut links longer than this
 const LONG_LINK = 2000;
+
+const iconButton = "flex items-center gap-1.5 font-mono text-[11px] tracking-widest uppercase px-2.5 py-1.5 rounded-md cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+const menuItem = "flex w-full items-center gap-3 whitespace-nowrap rounded-md px-3 py-2 text-left font-mono text-xs text-text cursor-pointer transition-colors hover:bg-panel disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent";
 
 export default function Header() {
 
@@ -21,10 +28,13 @@ export default function Header() {
     const sidebarOpen = useUIStore(state => state.sidebarOpen);
     const toggleSidebar = useUIStore(state => state.toggleSidebar);
     const theme = useUIStore(state => state.theme);
-    const toggleTheme = useUIStore(state => state.toggleTheme);
+    const setTheme = useUIStore(state => state.setTheme);
 
     const hasContent = useEditorStore(state => state.content.trim() !== '');
     const [shareStatus, setShareStatus] = useState<string | null>(null);
+
+    // printing and exporting capture the preview, which the editor-only view does not show
+    const noPreview = tab === 'editor';
 
     const share = async () => {
       let status: string;
@@ -47,101 +57,138 @@ export default function Header() {
       setShareStatus(status);
       setTimeout(() => setShareStatus(null), 2500);
     }
-    
+
   return (
-    <header className="flex flex-wrap items-center gap-4 px-4 md:px-6 h-auto md:h-13 py-2 md:py-0 border-b border-border bg-surface shrink-0">
-          <div className="flex items-baseline gap-2">
-            <span className="font-serif text-[22px] text-accent leading-none">∑</span>
-            <span className="font-serif font-medium text-[18px] tracking-tight text-heading">Mathmark</span>
-            <span className="text-[10px] text-muted tracking-widest uppercase">Math Editor</span>
-          </div>
-          <button
-          onClick={toggleSidebar}
-          aria-pressed={sidebarOpen}
-          title="Your documents"
-          className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
-          ${sidebarOpen ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
-          >
-            Notes
-          </button>
-          <button
-          onClick={toggleDocs} 
-          className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
-          ${docsOpen ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
-          >
-            Docs
-          </button>
-          <button
-          onClick={toggleExact}
-          aria-pressed={exact}
-          title={exact ? 'Results are shown as fractions and roots where possible. Click for decimals only.' : 'Results are shown as decimals. Click for fractions and roots where possible.'}
-          className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
-          ${exact ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
-          >
-            Exact
-          </button>
-          <button
-          onClick={toggleSteps}
-          aria-pressed={steps}
-          title={steps ? 'Results show the values substituted into each expression. Click to hide the working.' : 'Click to show the values substituted into each expression.'}
-          className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
-          ${steps ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
-          >
-            Steps
-          </button>
-          <nav className="flex flex-1 justify-center">
-            <div className="flex gap-1 bg-bg border border-border rounded-lg p-0.75">
-              {tabs.map(t => (
-                <button key={t} onClick={() => setTab(t as Tab)} className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors 
-                    ${t === 'split' ? 'hidden md:block' : ''}
-                    ${tab === t ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}>
-                  {t}
-                </button>
-              ))}
+    <header className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 md:px-4 min-h-13 py-1.5 border-b border-border bg-surface shrink-0 print:hidden">
+          {/* documents and name */}
+          <div className="flex items-center gap-2 lg:flex-1">
+            <button
+              onClick={toggleSidebar}
+              aria-pressed={sidebarOpen}
+              aria-label="Your notes"
+              title="Your notes"
+              className={`${iconButton} ${sidebarOpen ? 'bg-border text-accent' : 'text-muted hover:text-text hover:bg-panel'}`}
+            >
+              <NotesIcon />
+              <span className="hidden sm:inline">Notes</span>
+            </button>
+            <div className="flex items-baseline gap-2 pl-1 select-none">
+              <span className="font-serif text-[22px] text-accent leading-none">∑</span>
+              <span className="font-serif font-medium text-[18px] tracking-tight text-heading">Mathmark</span>
             </div>
+          </div>
+
+          {/* view */}
+          <nav aria-label="View" className="flex gap-1 bg-bg border border-border rounded-lg p-0.75">
+            {tabs.map(t => (
+              <button key={t} onClick={() => setTab(t as Tab)} aria-pressed={tab === t} className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
+                  ${t === 'split' ? 'hidden md:block' : ''}
+                  ${tab === t ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}>
+                {t}
+              </button>
+            ))}
           </nav>
-          <button
-            onClick={share}
-            disabled={!hasContent}
-            title="Copy a link that contains this document"
-            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted"
-          >
-            {shareStatus ?? 'share'}
-          </button>
-          <button
-            onClick={async () => (await import('@/utils/exportPdf')).exportToPdf()}
-            disabled={tab === 'editor'}
-            title={tab === 'editor' ? 'Switch to split or preview to export' : undefined}
-            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted"
-          >
-            export pdf
-          </button>
-          <button
-            onClick={() => window.print()}
-            disabled={tab === 'editor'}
-            title={tab === 'editor' ? 'Switch to split or preview to print' : undefined}
-            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted"
-          >
-            print 
-          </button>
-          <button
-            onClick={toggleTheme}
-            title={`Switch to the ${theme === 'dark' ? 'light' : 'dark'} theme`}
-            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer"
-          >
-            {theme === 'dark' ? 'light' : 'dark'}
-          </button>
-          <a
-            className="flex items-center gap-1.5 text-[11px] text-muted tracking-wide no-underline hover:text-accent transition-colors"
-            href="https://github.com/ekllerr/mathmark"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-            </svg>
-            Open Source
-          </a>
+
+          {/* how results are shown, then actions */}
+          <div className="flex flex-1 items-center justify-end gap-0.5">
+            <HeaderToggle
+              label="Exact"
+              on={exact}
+              onToggle={toggleExact}
+              description="Shows answers as fractions, roots and multiples of π where one can be found, with the decimal after it. Off shows decimals only."
+              example="1/3 + 1/6 = ½ = 0.5"
+            />
+            <HeaderToggle
+              label="Steps"
+              on={steps}
+              onToggle={toggleSteps}
+              description="Shows the working before the answer: variables are replaced by their values and your own functions are written out. Off shows the answer alone."
+              example="a · b = 2 · 3 = 6"
+            />
+
+            <span className="mx-1.5 h-5 w-px bg-border" aria-hidden="true" />
+
+            <button
+              onClick={share}
+              disabled={!hasContent}
+              title="Copy a link that contains this document"
+              className={`${iconButton} ${shareStatus ? 'text-accent' : 'text-muted hover:text-text hover:bg-panel'}`}
+            >
+              <ShareIcon />
+              <span className={shareStatus ? '' : 'hidden lg:inline'}>{shareStatus ?? 'Share'}</span>
+            </button>
+
+            <Popover label="Export" button={<><ExportIcon /><span className="hidden lg:inline">Export</span></>}>
+              {close => (
+                <>
+                  <button
+                    onClick={async () => { close(); (await import('@/utils/exportPdf')).exportToPdf(); }}
+                    disabled={noPreview}
+                    className={menuItem}
+                  >
+                    Save as PDF
+                  </button>
+                  <button onClick={() => { close(); window.print(); }} disabled={noPreview} className={menuItem}>
+                    Print
+                  </button>
+                  {noPreview && (
+                    <p className="max-w-48 px-3 py-2 font-mono text-[11px] leading-5 text-muted">
+                      Switch to Split or Preview first: these capture the preview.
+                    </p>
+                  )}
+                </>
+              )}
+            </Popover>
+
+            <Popover label="Theme" button={<ThemeIcon />}>
+              {() => (
+                <div role="radiogroup" aria-label="Theme" className="grid w-56 grid-cols-2 gap-1">
+                  {THEMES.map(option => (
+                    <button
+                      key={option.id}
+                      role="radio"
+                      aria-checked={theme === option.id}
+                      onClick={() => setTheme(option.id)}
+                      className={`flex flex-col gap-1.5 rounded-md p-1.5 text-left cursor-pointer transition-colors ${theme === option.id ? 'bg-border' : 'hover:bg-panel'}`}
+                    >
+                      {/* a miniature of the theme, drawn with the theme's own colours */}
+                      <span data-theme={option.id} className="flex h-10 items-end gap-1 rounded border border-border bg-bg p-1.5">
+                        <span className="h-full flex-1 rounded-sm bg-surface" />
+                        <span className="h-2 w-2 rounded-full bg-accent" />
+                        <span className="h-2 w-2 rounded-full bg-accent2" />
+                        <span className="h-2 w-2 rounded-full bg-text" />
+                      </span>
+                      <span className={`flex items-center justify-between font-mono text-[11px] ${theme === option.id ? 'text-accent' : 'text-text'}`}>
+                        {option.name}
+                        {theme === option.id && <CheckIcon />}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </Popover>
+
+            <button
+              onClick={toggleDocs}
+              aria-pressed={docsOpen}
+              aria-label="Syntax reference"
+              title="Syntax reference (Ctrl+/)"
+              className={`${iconButton} ${docsOpen ? 'bg-border text-accent' : 'text-muted hover:text-text hover:bg-panel'}`}
+            >
+              <HelpIcon />
+            </button>
+
+            <a
+              className={`${iconButton} text-muted hover:text-text hover:bg-panel`}
+              href="https://github.com/ekllerr/mathmark"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Source code on GitHub"
+              title="Source code on GitHub"
+            >
+              <GitHubIcon />
+            </a>
+          </div>
         </header>
   )
 }

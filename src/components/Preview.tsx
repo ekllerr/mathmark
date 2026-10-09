@@ -8,6 +8,7 @@ import DOMPurify from "dompurify";
 import katex from "katex";
 import { memo, useMemo, useState } from "react";
 import MathBlock from "./MathBlock";
+import { EXAMPLE } from "@/example";
 
 marked.setOptions({ breaks: true });
 
@@ -113,7 +114,7 @@ const Prose = memo(function Prose({ text, inline }: ProseProps) {
 
     return (
         <div
-            className="prose prose-invert prose-sm max-w-none font-light"
+            className="prose prose-sm max-w-none font-light"
             onClick={e => toggle(e.target)}
             onKeyDown={e => {
                 if((e.key === 'Enter' || e.key === ' ') && toggle(e.target)) e.preventDefault();
@@ -130,6 +131,7 @@ const Prose = memo(function Prose({ text, inline }: ProseProps) {
 export default function Preview() {
 
     const content = useEditorStore(state => state.content);
+    const setContent = useEditorStore(state => state.setContent);
     const [evaluate] = useState(createDocumentEvaluator);
 
     const blocks = useMemo(() => parseBlocks(content), [content]);
@@ -141,10 +143,26 @@ export default function Preview() {
           <div className="print:hidden px-4 py-1.5 text-[9px] tracking-widest text-muted uppercase border-b border-border bg-surface">
             Preview
           </div>
-          <div className="preview-content prose prose-invert prose-sm max-w-none flex-1 overflow-y-auto p-8 bg-panel text-text">
+          <div className="preview-content prose prose-sm max-w-none flex-1 overflow-y-auto p-8 bg-panel text-text">
             {segments.map(segment => segment.kind === 'prose'
               ? <Prose key={segment.key} text={segment.text} inline={segment.inline} />
               : <MathBlock key={segment.key} results={segment.results} />
+            )}
+
+            {content.trim() === '' && (
+              <div className="not-prose mx-auto mt-16 max-w-sm text-center font-mono print:hidden">
+                <div className="font-serif text-5xl text-accent">∑</div>
+                <h2 className="mt-4 text-sm text-heading">Nothing here yet</h2>
+                <p className="mt-2 text-xs leading-6 text-muted">
+                  Write notes in markdown. Anything inside <code className="text-text">{'${ }'}</code> is calculated, drawn and plotted.
+                </p>
+                <button
+                  onClick={() => setContent(EXAMPLE)}
+                  className="mt-5 rounded-md border border-accent px-4 py-2 text-[11px] tracking-widest uppercase text-accent cursor-pointer transition-colors hover:bg-border"
+                >
+                  Load an example
+                </button>
+              </div>
             )}
           </div>
 

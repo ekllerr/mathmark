@@ -21,14 +21,15 @@ export default memo(function MathBlock({results}: Props) {
     const steps = useUIStore(state => state.steps);
 
   return (
-    <div className="math-block relative bg-surface border border-border border-l-4 border-l-accent rounded-md px-5 py-4 my-4 overflow-x-auto">
+    <div className="math-block relative bg-surface border border-border border-l-4 border-l-accent rounded-lg px-5 pt-9 pb-4 my-5 overflow-x-auto">
 
       <button
         onClick={() => setCalculated(c => !c)}
+        aria-pressed={calculated}
         className={`absolute top-3 right-3 font-mono text-[9px] tracking-widest uppercase px-2 py-1 rounded border transition-colors cursor-pointer
           ${calculated ? 'border-accent text-accent' : 'border-border text-muted hover:text-text hover:border-muted'}`}
       >
-        {calculated ? '= on' : '= off'}
+        {calculated ? 'Hide results' : 'Show results'}
       </button>
 
 

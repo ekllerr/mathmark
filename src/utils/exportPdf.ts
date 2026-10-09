@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf'
 import domtoimage from 'dom-to-image-more'
+import { applyTheme, PRINT_THEME } from '@/themes'
 
 export async function exportToPdf() {
   const preview = document.querySelector('.preview-content') as HTMLElement | null
@@ -7,7 +8,7 @@ export async function exportToPdf() {
 
   const container = document.createElement('div')
   container.className = 'pdf-export prose prose-sm max-w-none'
-  container.dataset.theme = 'light'
+  applyTheme(PRINT_THEME, container)
   container.style.cssText = `
     position: fixed;
     top: -9999px;
@@ -25,9 +26,6 @@ export async function exportToPdf() {
   container.innerHTML = preview.innerHTML
 
   container.querySelectorAll('button').forEach(b => b.remove())
-
-  // drop the dark theme so prose renders dark-on-white
-  container.querySelectorAll('.prose-invert').forEach(el => el.classList.remove('prose-invert'))
 
   container.querySelectorAll('.math-block').forEach(block => {
     const el = block as HTMLElement

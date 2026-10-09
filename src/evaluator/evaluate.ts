@@ -178,7 +178,7 @@ function evalAssignment(stmt: AssignmentStatement, ctx: Context): ValueResult {
     type: 'value',
     exprLatex: `${toLatex(stmt.name)} = ${nodeToLatex(node)}`,
     // a plain number is already its own result: avoid "a = 2 = 2"
-    ...(isLiteral(node) ? { resultLatex: '' } : resultLatex(val, exact)),
+    ...(isLiteral(node) ? { resultLatex: '' } : resultLatex(val, exact, nodeToLatex(node))),
     stepLatex: typeof val === 'number' ? substitution(node, scopeBefore, ctx.fnDefs) : undefined,
     raw: val,
   }
@@ -227,14 +227,17 @@ function writeOut(node: math.MathNode, scope: Scope, fnDefs: Context['fnDefs'], 
 }
 
 // "= 0.5" for decimal display, and "= \frac{1}{2} = 0.5" for exact display when an exact form is known
-function resultLatex(val: unknown, exact: string | null): Pick<ValueResult, 'resultLatex' | 'exactLatex'> {
+// (`written` is the expression as the author wrote it: repeating it as its own exact form says nothing)
+function resultLatex(val: unknown, exact: string | null, written = ''): Pick<ValueResult, 'resultLatex' | 'exactLatex'> {
   const decimal = formatNum(val)
   if(exact === null || typeof val !== 'number') return { resultLatex: `= ${decimal}` }
 
   // the decimal is shown to 10 places: it equals the value only if nothing was rounded away
   const scaled = val * 1e10
   const isExactDecimal = Math.abs(val) < 1e5 && Math.abs(scaled - Math.round(scaled)) < 1e-4
-  return { resultLatex: `= ${decimal}`, exactLatex: `= ${exact} ${isExactDecimal ? '=' : '\\approx'} ${decimal}` }
+  const sign = isExactDecimal ? '=' : '\\approx'
+  const repeats = exact.replace(/\s/g, '') === written.replace(/\s/g, '')
+  return { resultLatex: `= ${decimal}`, exactLatex: repeats ? `${sign} ${decimal}` : `= ${exact} ${sign} ${decimal}` }
 }
 
 function isLiteral(node: math.MathNode): boolean {
@@ -363,7 +366,7 @@ function evalExpression(stmt: ExpressionStatement, { scope, fnDefs }: Context): 
         return {
             type: 'value',
             exprLatex,
-            ...resultLatex(val, exact),
+            ...resultLatex(val, exact, exprLatex),
             stepLatex: typeof val === 'number' ? substitution(node, scope, fnDefs) : undefined,
             raw: val,
         }

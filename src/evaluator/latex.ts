@@ -51,6 +51,9 @@ function texHandler(node: math.MathNode, options?: object): string | undefined {
     if(math.isOperatorNode(node) && node.fn === 'equal')
         return `${node.args[0].toTex(options)} \\stackrel{?}{=} ${node.args[1].toTex(options)}`;
 
+    // mathjs sets letters that are also unit names (g, m, t, ...) upright; a lone letter here is a variable
+    if(math.isSymbolNode(node) && /^[a-zA-Z]$/.test(node.name)) return ` ${node.name}`;
+
     if(node.type !== 'FunctionNode') return undefined;
 
     const { fn, args } = node as math.FunctionNode;
