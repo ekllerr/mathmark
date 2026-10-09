@@ -189,6 +189,14 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173).
 
+### Tests
+
+```bash
+npm test
+```
+
+The parser, evaluator, numeric methods and share links are covered by a Vitest suite in `src/**/*.test.ts`. Pull requests run lint, tests and a build on GitHub Actions.
+
 ---
 
 ## Tech Stack
