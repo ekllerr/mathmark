@@ -7,6 +7,7 @@ import { createDocumentEvaluator } from '@/evaluator/evaluate'
 import { parseBlocks } from '@/parser/blockParser'
 import { splitTopLevelParts } from '@/parser/brackets'
 import { parseStatements } from '@/parser/dslParser'
+import { applyTemplate, insideMath, MATH_BLOCK, type Template } from './templates'
 
 const KEYWORDS = new Set(['plot', 'int', 'lim', 'sum', 'prod', 'diff', 'solve']);
 const CONSTANTS = new Set(['pi', 'e', 'i', 'inf', 'infinity']);
@@ -100,20 +101,6 @@ const BUILT_IN: Completion[] = [
     { label: 'inf', detail: 'infinity', type: 'constant' },
 ];
 
-// true when `position` is inside a ${ ... }, including one whose closing brace has not been typed yet
-function insideMath(text: string, position: number): boolean {
-    const open = text.lastIndexOf('${', position - 1);
-    if(open === -1 || open + 2 > position) return false;
-
-    let depth = 1;
-    for(let i = open + 2; i < position; i++){
-        if(text[i] === '{') depth++;
-        else if(text[i] === '}' && --depth === 0) return false;
-    }
-
-    return true;
-}
-
 // the variables and functions the document itself defines
 function definedNames(text: string): Completion[] {
     const names = new Map<string, Completion>();
@@ -181,6 +168,23 @@ function createLinter(): Extension {
     }, { delay: 400 });
 }
 
+// ---------- inserting templates ----------
+
+// puts a template at the cursor (or around the selection) and selects the part to fill in
+export function insertTemplate(view: EditorView, template: Template): boolean {
+    const { from, to } = view.state.selection.main;
+    const insertion = applyTemplate(view.state.doc.toString(), from, to, template);
+
+    view.dispatch({
+        changes: { from: insertion.from, to: insertion.to, insert: insertion.insert },
+        selection: { anchor: insertion.selectFrom, head: insertion.selectTo },
+        scrollIntoView: true,
+        userEvent: 'input',
+    });
+    view.focus();
+    return true;
+}
+
 // ---------- appearance ----------
 
 // colours come from the page's CSS variables, so the editor follows the light and dark themes by itself
@@ -221,7 +225,9 @@ export function mathEditor(onChange: (content: string) => void): Extension {
         highlighter,
         createLinter(),
         theme,
-        keymap.of([...closeBracketsKeymap, ...completionKeymap, ...historyKeymap, ...defaultKeymap, indentWithTab]),
+        keymap.of([
+            { key: 'Mod-m', run: view => insertTemplate(view, MATH_BLOCK) },
+            ...closeBracketsKeymap, ...completionKeymap, ...historyKeymap, ...defaultKeymap, indentWithTab]),
         EditorView.updateListener.of(update => {
             if(update.docChanged) onChange(update.state.doc.toString());
         }),

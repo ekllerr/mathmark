@@ -1,5 +1,6 @@
 import useEditorStore from "@/store/editor";
-import { mathEditor } from "@/editor/mathExtensions";
+import { insertTemplate, mathEditor } from "@/editor/mathExtensions";
+import Toolbar from "./Toolbar";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { useEffect, useRef } from "react";
@@ -41,6 +42,7 @@ export default function Editor() {
             ? <span>Saved in this browser</span>
             : <span className="text-red-400">Not saved: browser storage is unavailable</span>}
         </div>
+        <Toolbar onInsert={template => { if (viewRef.current) insertTemplate(viewRef.current, template) }} />
         <div ref={container} className="flex-1 min-h-0 overflow-hidden bg-panel" />
     </div>
   )
