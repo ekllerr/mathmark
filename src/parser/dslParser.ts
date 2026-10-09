@@ -10,6 +10,7 @@ export interface AssignmentStatement{
 export interface PlotStatement{
     type: 'plot',
     fns: string[],
+    range: [string, string] | null, //the x-range to show first, written a..b
     raw: string
 }
 
@@ -129,8 +130,14 @@ function parseCall({ name, args, rest }: Call, raw: string): Statement | null {
     if(definition && args.length > 0 && args.every(arg => IDENTIFIER.test(arg)))
         return {type: 'function', name, params: args, body: definition[1].trim(), raw}
 
-    if(name === 'plot' && rest === '' && args.length > 0)
-        return {type: 'plot', fns: args, raw}
+    if(name === 'plot' && rest === '' && args.length > 0){
+        // plot(sin(x), cos(x), -pi..pi): an argument of the form a..b sets the x-range
+        const range = args.map(arg => arg.match(/^(.+?)\.\.(.+)$/)).find(Boolean);
+        const fns = args.filter(arg => !/^(.+?)\.\.(.+)$/.test(arg));
+
+        if(fns.length > 0)
+            return {type: 'plot', fns, range: range ? [range[1].trim(), range[2].trim()] : null, raw}
+    }
 
     if(name === 'diff' && rest && (args.length === 1 || args.length === 2))
         return parseDerivative(args, rest, raw);
