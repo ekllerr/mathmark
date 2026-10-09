@@ -183,6 +183,8 @@ Notes saved in a browser are lost if its site data is cleared, so the list also 
 
 The theme button in the header offers six themes: Midnight, Graphite, Nord and Dusk (dark), Paper and Sepia (light). The choice is remembered. Printing and PDF export always use Paper.
 
+**Export → Save as PDF** produces A4 pages named after the note. Pages end between paragraphs and blocks, so a formula or plot is not cut in half. **Export → Print** uses the browser's print dialog with the same page rules; choosing "Save as PDF" there gives a PDF whose text can be selected and searched.
+
 A theme is a block of colour variables in `src/index.css` plus one line in `src/themes.ts`, so adding one takes a few lines.
 
 ---

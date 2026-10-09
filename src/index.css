@@ -197,33 +197,58 @@
 
 /* ---------- print and PDF ---------- */
 
+@page {
+  margin: 18mm 16mm;
+}
+
 @media print {
-  body * {
-    visibility: hidden;
+  /* On screen the app is one fixed, scrolling window. On paper the preview has to run on over as many pages
+     as it needs, so every container around it gives up its height and its scrolling.
+     The header, editor, sidebar and dialogs are hidden with Tailwind's print:hidden. */
+  html, body, #root, #root > div, main, .preview-scroll, .preview-content {
+    display: block !important;
+    position: static !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: white !important;
   }
 
-  .preview-scroll,
-  .preview-scroll * {
-    visibility: visible;
+  .preview-content {
+    padding: 0 !important;
+    font-size: 11pt;
   }
 
-  .preview-scroll {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+  /* keep a block, a formula, a plot or a table on one page, and a heading with what follows it */
+  .math-block, .katex-display, .js-plotly-plot, pre, table, blockquote, li {
+    break-inside: avoid;
+  }
+
+  h1, h2, h3, h4 {
+    break-after: avoid;
+  }
+
+  p {
+    orphans: 3;
+    widows: 3;
   }
 
   .math-block {
     background: none !important;
     border: none !important;
-    border-left: none !important;
-    padding: 0 !important;
-    margin: 0.5rem 0 !important;
+    border-left: 2px solid #888 !important;
+    border-radius: 0 !important;
+    padding: 0.25rem 1rem !important;
+    margin: 0.75rem 0 !important;
   }
 
   .math-block button {
     display: none !important;
+  }
+
+  /* inline math is not clickable on paper */
+  .math-inline {
+    padding: 0;
   }
 
   /* a plot keeps the colours it was drawn with: recolour it for white paper */
