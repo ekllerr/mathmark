@@ -33,6 +33,17 @@ export default function Header() {
 
     const hasContent = useEditorStore(state => state.content.trim() !== '');
     const [shareStatus, setShareStatus] = useState<string | null>(null);
+    const [exporting, setExporting] = useState(false);
+
+    // a long note takes a few seconds to turn into pages
+    const savePdf = async () => {
+      setExporting(true);
+      try {
+        const { exportToPdf } = await import('@/utils/exportPdf');
+        await exportToPdf(fileName(useEditorStore.getState().content, 'pdf'));
+      }
+      finally { setExporting(false) }
+    }
 
     // printing and exporting capture the preview, which the editor-only view does not show
     const noPreview = tab === 'editor';
@@ -119,7 +130,7 @@ export default function Header() {
               <span className={shareStatus ? '' : 'hidden lg:inline'}>{shareStatus ?? 'Share'}</span>
             </button>
 
-            <Popover label="Export" button={<><ExportIcon /><span className="hidden lg:inline">Export</span></>}>
+            <Popover label="Export" button={<><ExportIcon /><span className={exporting ? '' : 'hidden lg:inline'}>{exporting ? 'Preparing PDF…' : 'Export'}</span></>}>
               {close => (
                 <>
                   <button
@@ -134,14 +145,14 @@ export default function Header() {
                     Save as Markdown (.md)
                   </button>
                   <button
-                    onClick={async () => { close(); (await import('@/utils/exportPdf')).exportToPdf(); }}
-                    disabled={noPreview}
+                    onClick={() => { close(); savePdf(); }}
+                    disabled={noPreview || exporting}
                     className={menuItem}
                   >
-                    Save as PDF
+                    Save as PDF (A4 pages)
                   </button>
                   <button onClick={() => { close(); window.print(); }} disabled={noPreview} className={menuItem}>
-                    Print
+                    Print…
                   </button>
                   {noPreview && (
                     <p className="max-w-48 px-3 py-2 font-mono text-[11px] leading-5 text-muted">
