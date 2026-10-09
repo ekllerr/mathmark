@@ -1,0 +1,1 @@
+{"name":"Mathmark","short_name":"Mathmark","description":"A math-first markdown editor: write notes, and the math in them is evaluated, rendered and plotted.","start_url":"/mathmark/","display":"standalone","background_color":"#0e0e14","theme_color":"#14141e","lang":"en","scope":"/mathmark/","icons":[{"src":"favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
