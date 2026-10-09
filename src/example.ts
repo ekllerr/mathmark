@@ -5,7 +5,7 @@ A ball is thrown at \${ v = 20 } m/s at an angle of \${ a = pi/4 }, with gravity
 
 ## Height over time
 
-\${ h(t) = v * sin(a) * t - 1/2 * g * t^2, plot(h(x)) }
+\${ h(t) = v * sin(a) * t - 1/2 * g * t^2, plot(h(x), 0..3) }
 
 ## When does it land?
 

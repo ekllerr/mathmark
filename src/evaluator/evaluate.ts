@@ -1,6 +1,6 @@
 import * as math from 'mathjs'
 import { parseStatements } from '@/parser/dslParser'
-import type { Statement, AssignmentStatement, FunctionStatement, DerivativeStatement, IntegralStatement, LimitStatement, ExpressionStatement, SumStatement, SolveStatement } from '@/parser/dslParser'
+import type { Statement, AssignmentStatement, PlotStatement, FunctionStatement, DerivativeStatement, IntegralStatement, LimitStatement, ExpressionStatement, SumStatement, SolveStatement } from '@/parser/dslParser'
 import { integrate, limit, toReal, type RealFunction } from './numeric'
 import { formatNum, nodeToLatex, numToLatex, toLatex } from './latex'
 import { exactExpression, exactSeries, recognise } from './exact'
@@ -22,6 +22,7 @@ export interface PlotResult{
     type: 'plot',
     fns: string[]
     scope: Record<string, unknown>
+    range: [number, number] | null // the x-range asked for, null for the default
 }
 
 export interface ErrorResult{
@@ -127,7 +128,7 @@ export function evaluateBlock(statements: Statement[], ctx: Context = createCont
                 }
 
                 case 'plot': {
-                    results.push({type: 'plot', fns: stmt.fns, scope: cloneContext(ctx).scope});
+                    results.push({type: 'plot', fns: stmt.fns, scope: cloneContext(ctx).scope, range: plotRange(stmt, ctx.scope)});
                     break;
                 }
 
@@ -168,6 +169,9 @@ export function evaluateBlock(statements: Statement[], ctx: Context = createCont
 
 function evalAssignment(stmt: AssignmentStatement, ctx: Context): ValueResult {
   const node = math.parse(stmt.value)
+  const letter = undefinedLetter(node, ctx.scope)
+  if(letter) throw new Error(`Undefined symbol ${letter}`)
+
   const val = node.evaluate(ctx.scope)
   const exact = typeof val === 'number' ? exactExpression(stmt.value, ctx.scope, val) : null
   const scopeBefore = { ...ctx.scope } // a = a + 1 substitutes the old value of a
@@ -355,11 +359,32 @@ function inlineFunctions(node: math.MathNode, fnDefs: Context['fnDefs'], depth =
     });
 }
 
+function plotRange(stmt: PlotStatement, scope: Scope): [number, number] | null {
+    if(!stmt.range) return null;
+
+    const from = parseBound(stmt.range[0], scope);
+    const to = parseBound(stmt.range[1], scope);
+    if(!isFinite(from) || !isFinite(to) || from >= to)
+        throw new Error('a plot range must be two finite numbers, smaller first, e.g. -pi..pi');
+
+    return [from, to];
+}
+
+// mathjs reads an undefined m, g, s, ... as a unit (metre, gram, second), so "m * g" would quietly
+// become a quantity instead of a formula. A single letter is a variable here; longer unit names
+// such as deg, cm or kg keep working.
+function undefinedLetter(node: math.MathNode, scope: Scope): string | undefined {
+    return freeSymbols(node, scope).find(name => name.length === 1);
+}
+
 function evalExpression(stmt: ExpressionStatement, { scope, fnDefs }: Context): ValueResult {
     const node = math.parse(stmt.expr);
     const exprLatex = nodeToLatex(node);
 
     try{
+        const letter = undefinedLetter(node, scope);
+        if(letter) throw new Error(`Undefined symbol ${letter}`);
+
         const val = node.evaluate(scope);
         const exact = typeof val === 'number' ? exactExpression(stmt.expr, scope, val) : null;
 
@@ -522,7 +547,17 @@ function unknownOf(node: math.MathNode, scope: Scope): string {
     const unknowns = freeSymbols(node, scope);
 
     if(unknowns.length === 1) return unknowns[0];
-    if(unknowns.length === 0) throw new Error('nothing to solve for: name the variable, e.g. solve(x^2 = 4, x)');
+
+    if(unknowns.length === 0){
+        // every letter already has a value, perhaps from earlier in the notes: an equation is still
+        // a question about its variable, so solve for x, or for the only variable there is
+        const variables = freeSymbols(node, {}).filter(name => typeof scope[name] !== 'function');
+        if(variables.includes('x')) return 'x';
+        if(variables.length === 1) return variables[0];
+
+        throw new Error('nothing to solve for: name the variable, e.g. solve(x^2 = 4, x)');
+    }
+
     throw new Error(`several unknowns (${unknowns.join(', ')}): give the others a value, or name the one to solve for`);
 }
 

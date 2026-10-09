@@ -65,7 +65,7 @@ ${ plot(x^2) }
 ${ plot(sin(x), cos(x)) }
 ```
 
-Default domain: `x ∈ [-10, 10]`. Multiple functions share the same plot.
+Default domain: `x ∈ [-10, 10]`; give another as `a..b`, for example `plot(sin(x), -pi..pi)`. Multiple functions share the same plot, and a plot can be dragged sideways. Curves with vertical asymptotes, such as `tan(x)`, are drawn in separate branches.
 
 ### Integrals
 
@@ -122,6 +122,12 @@ Linear and quadratic equations are solved exactly; other polynomials have all th
 
 With **Exact** on (the default), a result is also shown in exact form when one is found: `1/3 + 1/6` gives 1/2, `sqrt(8)` gives 2√2, `atan(1)` gives π/4. Arithmetic on fractions is carried out exactly. Other values, including integrals and limits, are matched against simple fractions and multiples of square roots, π, e and a few logarithms; a value that matches none of these is shown as a decimal only. Turn **Exact** off in the header for decimals everywhere.
 
+### Degrees
+
+Trigonometric functions work in radians. Write `deg` for degrees: `sin(30 deg)`.
+
+A single letter is always a variable, never a unit, so `m * g` stays a formula until `m` and `g` have values.
+
 ### Combinatorics
 
 ```
@@ -155,17 +161,37 @@ These read ½·m·v² = ½·2·3² = 9 and f(3) = 3² + 1 = 10. Turn **Steps** o
 
 ## The Editor
 
+The bar above the editor inserts the common pieces with one click: a math block (also **Ctrl+M**), fractions, roots, integrals, derivatives, limits, sums, `solve`, `plot`, and headings, bold and list items. Each insert selects the part you will want to change, and a math insert adds its own `${ }` unless the cursor is already in one. Select text first to wrap it.
+
 Inside a `${ }` the editor colours keywords, functions and numbers, and suggests names as you type: the built-in forms (`int`, `diff`, `lim`, `sum`, `prod`, `solve`, `plot`), common functions, and the variables and functions your own document defines. A statement that fails is underlined where the problem is; hover over it for the message.
 
 ## Documents, Saving & Sharing
 
-**Notes** in the header opens the list of your documents. Each is named after its first line. They are saved in the browser (`localStorage`) on every change, so you can close the tab and resume later on the same browser and device. Deleting a document asks for a second click and cannot be undone.
+**Notes** in the header opens the list of your documents, with a search box. Each is named after its first line. They are saved in the browser (`localStorage`) on every change, so you can close the tab and resume later on the same browser and device.
+
+A deleted note goes to the **Trash** at the bottom of the list, where it can be restored for 30 days.
+
+Notes saved in a browser are lost if its site data is cleared, so the list also has:
+
+- **Open a .md file** - adds a Markdown file as a new note
+- **Back up all notes** - downloads every note as one `.json` file
+- **Restore a backup** - adds the notes from a backup that are not already there
+
+**Export → Save as Markdown** downloads the current note as a `.md` file.
 
 **Share** copies a link with the current document compressed into the part of the URL after `#`, which is never sent to a server. Opening a link adds it as a new document; your own notes are left as they were. Very long documents make long links, which some chat and email apps cut short.
+
+## Offline & Installing
+
+After the first visit Mathmark works without a connection: the app is stored by the browser, and plotting and PDF export are stored the first time each is used. It can also be installed from the browser's menu ("Install" or "Add to Home Screen") and then opens in its own window.
+
+When a new version has been published, a notice offers to reload; nothing changes under you while you are writing.
 
 ## Themes & Printing
 
 The theme button in the header offers six themes: Midnight, Graphite, Nord and Dusk (dark), Paper and Sepia (light). The choice is remembered. Printing and PDF export always use Paper.
+
+**Export → Save as PDF** produces A4 pages named after the note. Pages end between paragraphs and blocks, so a formula or plot is not cut in half. **Export → Print** uses the browser's print dialog with the same page rules; choosing "Save as PDF" there gives a PDF whose text can be selected and searched.
 
 A theme is a block of colour variables in `src/index.css` plus one line in `src/themes.ts`, so adding one takes a few lines.
 
@@ -188,6 +214,14 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173).
+
+### Tests
+
+```bash
+npm test
+```
+
+The parser, evaluator, numeric methods and share links are covered by a Vitest suite in `src/**/*.test.ts`. Pull requests run lint, tests and a build on GitHub Actions.
 
 ---
 

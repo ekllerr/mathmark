@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { applyTheme, PRINT_THEME } from "@/themes";
 import Docs from "./components/Docs";
 import SharedDocument from "./components/SharedDocument";
+import UpdateNotice from "./components/UpdateNotice";
 
 function App() {
 
@@ -55,6 +56,7 @@ function App() {
       <Docs />
       <Main /> 
       <SharedDocument />
+      <UpdateNotice />
     </div>
   )
 }

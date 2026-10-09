@@ -4,6 +4,11 @@ import { applyTheme, toThemeId, type ThemeId } from "@/themes";
 export type Tab = 'editor' | 'split' | 'preview';
 export const tabs = ['editor', 'split', 'preview'];
 
+// what the service worker has to report: the app is stored for offline use, or a newer version is waiting
+export type OfflineNotice =
+    | { kind: 'ready' }
+    | { kind: 'update', reload: () => void }
+
 interface UIStore{
     tab: Tab,
     setTab: (tab: Tab) => void;
@@ -17,6 +22,8 @@ interface UIStore{
     toggleSteps: () => void;
     theme: ThemeId;
     setTheme: (theme: ThemeId) => void;
+    offline: OfflineNotice | null;
+    setOffline: (notice: OfflineNotice | null) => void;
 }
 
 // preferences are remembered between visits; a browser that refuses storage just forgets them
@@ -55,7 +62,9 @@ const useUIStore = create<UIStore>(set => ({
         save('theme', theme);
         applyTheme(theme);
         set({theme});
-    }
+    },
+    offline: null,
+    setOffline: (offline) => set({offline})
 }));
 
 export default useUIStore;
