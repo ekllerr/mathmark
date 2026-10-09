@@ -165,7 +165,17 @@ Inside a `${ }` the editor colours keywords, functions and numbers, and suggests
 
 ## Documents, Saving & Sharing
 
-**Notes** in the header opens the list of your documents. Each is named after its first line. They are saved in the browser (`localStorage`) on every change, so you can close the tab and resume later on the same browser and device. Deleting a document asks for a second click and cannot be undone.
+**Notes** in the header opens the list of your documents, with a search box. Each is named after its first line. They are saved in the browser (`localStorage`) on every change, so you can close the tab and resume later on the same browser and device.
+
+A deleted note goes to the **Trash** at the bottom of the list, where it can be restored for 30 days.
+
+Notes saved in a browser are lost if its site data is cleared, so the list also has:
+
+- **Open a .md file** - adds a Markdown file as a new note
+- **Back up all notes** - downloads every note as one `.json` file
+- **Restore a backup** - adds the notes from a backup that are not already there
+
+**Export → Save as Markdown** downloads the current note as a `.md` file.
 
 **Share** copies a link with the current document compressed into the part of the URL after `#`, which is never sent to a server. Opening a link adds it as a new document; your own notes are left as they were. Very long documents make long links, which some chat and email apps cut short.
 
