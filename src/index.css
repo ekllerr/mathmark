@@ -1,7 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Every component reads its colours through these variables. The values here are the Midnight theme,
+   repeated below under [data-theme="midnight"] so that it can also be previewed inside another theme. */
 @theme {
   --font-mono: 'IBM Plex Mono', monospace;
   --font-serif: 'Fraunces', Georgia, serif;
@@ -9,18 +11,72 @@
   --color-bg: #0e0e14;
   --color-surface: #14141e;
   --color-panel: #191926;
-  --color-border: #23233a;
+  --color-border: #262640;
   --color-accent: #7DF9AA;
   --color-accent2: #60CFFF;
-  --color-muted: #5a5a78;
+  --color-muted: #7f7fa3;
   --color-text: #e5e5e5;
   --color-heading: #ffffff;
-  --color-number: #FFD166
+  --color-number: #FFD166;
 }
 
-/* The light theme only redefines the colours: every component reads them through these variables.
-   It is set on <html> by the theme switch, and on the off-screen copy that exportToPdf renders. */
-[data-theme="light"] {
+/* ---------- themes ----------
+   A theme is set on <html> by the theme picker, on each swatch inside the picker,
+   and on the off-screen copy that exportToPdf renders. */
+
+[data-theme="midnight"] {
+  --color-bg: #0e0e14;
+  --color-surface: #14141e;
+  --color-panel: #191926;
+  --color-border: #262640;
+  --color-accent: #7DF9AA;
+  --color-accent2: #60CFFF;
+  --color-muted: #7f7fa3;
+  --color-text: #e5e5e5;
+  --color-heading: #ffffff;
+  --color-number: #FFD166;
+}
+
+[data-theme="graphite"] {
+  --color-bg: #111111;
+  --color-surface: #191919;
+  --color-panel: #1e1e1e;
+  --color-border: #303030;
+  --color-accent: #f5a524;
+  --color-accent2: #7cc4fa;
+  --color-muted: #8a8a8a;
+  --color-text: #e4e4e4;
+  --color-heading: #ffffff;
+  --color-number: #f78c6c;
+}
+
+[data-theme="nord"] {
+  --color-bg: #242933;
+  --color-surface: #2e3440;
+  --color-panel: #2a303b;
+  --color-border: #3f4758;
+  --color-accent: #88c0d0;
+  --color-accent2: #a3be8c;
+  --color-muted: #8d9ab3;
+  --color-text: #d8dee9;
+  --color-heading: #eceff4;
+  --color-number: #ebcb8b;
+}
+
+[data-theme="dusk"] {
+  --color-bg: #17121f;
+  --color-surface: #1e1729;
+  --color-panel: #231b30;
+  --color-border: #382c50;
+  --color-accent: #c4a7ff;
+  --color-accent2: #ff9ecf;
+  --color-muted: #9384b0;
+  --color-text: #e6e0f0;
+  --color-heading: #ffffff;
+  --color-number: #ffd580;
+}
+
+[data-theme="paper"] {
   --color-bg: #eeeef3;
   --color-surface: #ffffff;
   --color-panel: #fafafc;
@@ -33,27 +89,113 @@
   --color-number: #b45309;
 }
 
-/* prose is styled for the dark theme with prose-invert: in the light theme, hand it dark-on-light colours */
-[data-theme="light"] .prose-invert,
-[data-theme="light"].prose {
-  --tw-prose-body: #374151;
-  --tw-prose-headings: #111827;
-  --tw-prose-lead: #4b5563;
-  --tw-prose-links: #111827;
-  --tw-prose-bold: #111827;
-  --tw-prose-counters: #6b7280;
-  --tw-prose-bullets: #d1d5db;
-  --tw-prose-hr: #e5e7eb;
-  --tw-prose-quotes: #111827;
-  --tw-prose-quote-borders: #e5e7eb;
-  --tw-prose-captions: #6b7280;
-  --tw-prose-kbd: #111827;
-  --tw-prose-code: #111827;
-  --tw-prose-pre-code: #e5e7eb;
-  --tw-prose-pre-bg: #1f2937;
-  --tw-prose-th-borders: #d1d5db;
-  --tw-prose-td-borders: #e5e7eb;
+[data-theme="sepia"] {
+  --color-bg: #ebe1cd;
+  --color-surface: #f6eedd;
+  --color-panel: #faf4e6;
+  --color-border: #dccfb4;
+  --color-accent: #a0522d;
+  --color-accent2: #2f6f8f;
+  --color-muted: #857556;
+  --color-text: #3b3225;
+  --color-heading: #241c10;
+  --color-number: #8a5a00;
 }
+
+/* plot colours follow the theme: the first two curves use its accents.
+   These are declared wherever a theme is set, so that they pick up that theme's colours. */
+:root,
+[data-scheme] {
+  --plot-grid: var(--color-border);
+  --plot-zero: var(--color-muted);
+  --plot-1: var(--color-accent);
+  --plot-2: var(--color-accent2);
+}
+
+:root,
+[data-scheme="dark"] {
+  color-scheme: dark;
+  --plot-text: #c8c8d0;
+  --plot-3: #FF6B9D;
+  --plot-4: #FFD166;
+  --plot-5: #C77DFF;
+}
+
+[data-scheme="light"] {
+  color-scheme: light;
+  --plot-text: #333333;
+  --plot-3: #d81b60;
+  --plot-4: #e37400;
+  --plot-5: #8e24aa;
+}
+
+/* ---------- base ---------- */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-accent2) 35%, transparent);
+}
+
+/* rendered notes take their colours from the theme */
+.prose {
+  font-family: var(--font-mono);
+  font-weight: 300;
+
+  --tw-prose-body: var(--color-text);
+  --tw-prose-headings: var(--color-heading);
+  --tw-prose-lead: var(--color-text);
+  --tw-prose-links: var(--color-accent2);
+  --tw-prose-bold: var(--color-heading);
+  --tw-prose-counters: var(--color-muted);
+  --tw-prose-bullets: var(--color-muted);
+  --tw-prose-hr: var(--color-border);
+  --tw-prose-quotes: var(--color-text);
+  --tw-prose-quote-borders: var(--color-accent);
+  --tw-prose-captions: var(--color-muted);
+  --tw-prose-kbd: var(--color-heading);
+  --tw-prose-code: var(--color-heading);
+  --tw-prose-pre-code: var(--color-text);
+  --tw-prose-pre-bg: var(--color-bg);
+  --tw-prose-th-borders: var(--color-border);
+  --tw-prose-td-borders: var(--color-border);
+}
+
+.prose strong {
+  font-weight: 500;
+}
+
+.prose h1, .prose h2, .prose h3 {
+  font-weight: 500;
+}
+
+.prose pre {
+  border: 1px solid var(--color-border);
+}
+
+/* inline math is clickable: it shows its result in place */
+.math-inline {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 1px 3px;
+  transition: background-color 150ms;
+}
+
+.math-inline:hover,
+.math-inline:focus-visible {
+  background-color: var(--color-border);
+  outline: none;
+}
+
+/* ---------- print and PDF ---------- */
 
 @media print {
   body * {
@@ -84,7 +226,7 @@
     display: none !important;
   }
 
-  /* plots are drawn for the dark theme: recolour them for white paper */
+  /* a plot keeps the colours it was drawn with: recolour it for white paper */
   .preview-scroll {
     .js-plotly-plot text { fill: #333 !important; }
     .js-plotly-plot .gridlayer path { stroke: #ddd !important; }
@@ -117,33 +259,4 @@
   .js-plotly-plot .legend .traces:nth-child(5n+4) .legendlines path { stroke: #e37400 !important; }
   .js-plotly-plot .scatterlayer .trace:nth-child(5n+5) .js-line,
   .js-plotly-plot .legend .traces:nth-child(5n+5) .legendlines path { stroke: #8e24aa !important; }
-}
-
-/* inline math is clickable: it shows its result in place */
-.math-inline {
-  cursor: pointer;
-  border-radius: 4px;
-  padding: 1px 3px;
-  transition: background-color 150ms;
-}
-
-.math-inline:hover,
-.math-inline:focus-visible {
-  background-color: var(--color-border);
-  outline: none;
-}
-
-@layer base {
-  .prose {
-    font-family: var(--font-mono);
-    font-weight: 300;
-  }
-
-  .prose strong {
-    font-weight: 500;
-  }
-
-  .prose h1, .prose h2, .prose h3 {
-    font-weight: 500;
-  }
 }

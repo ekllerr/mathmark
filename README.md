@@ -29,7 +29,7 @@ Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }`
 - **Step display** - results show the values substituted in, `a·b = 2·3 = 6`
 - **Editor help** - highlighting, autocomplete and underlined errors inside `${ }`
 - **Multiple documents** - a list of notes, each saved in the browser
-- **Light and dark themes**
+- **Six themes** - four dark, two light
 - **Autosave** - your notes are kept in the browser and are there when you come back
 - **Share by link** - the document is compressed into the URL, no server involved
 - **Fully client-side**
@@ -40,7 +40,7 @@ Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }`
 
 All math blocks use the `${ ... }` syntax. Statements inside a block are separated by commas and executed left to right.
 
-A `${ ... }` on a line of its own is set as a display block with an `= on / off` switch for its results. A `${ ... }` inside a line of text is set inline, as part of the sentence; click it to show its result. A `${ ... }` inside markdown code (backticks or a fenced block) is shown as written, not evaluated.
+A `${ ... }` on a line of its own is set as a display block with a **Show results** switch. A `${ ... }` inside a line of text is set inline, as part of the sentence; click it to show its result. A `${ ... }` inside markdown code (backticks or a fenced block) is shown as written, not evaluated.
 
 ### Variables & Expressions
 
@@ -165,7 +165,9 @@ Inside a `${ }` the editor colours keywords, functions and numbers, and suggests
 
 ## Themes & Printing
 
-The **light / dark** switch in the header changes the theme and is remembered. Printing and PDF export always use the light theme.
+The theme button in the header offers six themes: Midnight, Graphite, Nord and Dusk (dark), Paper and Sepia (light). The choice is remembered. Printing and PDF export always use Paper.
+
+A theme is a block of colour variables in `src/index.css` plus one line in `src/themes.ts`, so adding one takes a few lines.
 
 ---
 

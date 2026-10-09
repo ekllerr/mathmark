@@ -1,9 +1,8 @@
 import { create } from "zustand";
+import { applyTheme, toThemeId, type ThemeId } from "@/themes";
 
 export type Tab = 'editor' | 'split' | 'preview';
 export const tabs = ['editor', 'split', 'preview'];
-
-export type Theme = 'dark' | 'light';
 
 interface UIStore{
     tab: Tab,
@@ -16,14 +15,14 @@ interface UIStore{
     toggleExact: () => void;
     steps: boolean; // show the values substituted into an expression before its result
     toggleSteps: () => void;
-    theme: Theme;
-    toggleTheme: () => void;
+    theme: ThemeId;
+    setTheme: (theme: ThemeId) => void;
 }
 
 // preferences are remembered between visits; a browser that refuses storage just forgets them
-function load(key: string, fallback: string): string {
-    try { return localStorage.getItem(`mathmark:${key}`) ?? fallback }
-    catch { return fallback }
+function load(key: string): string | null {
+    try { return localStorage.getItem(`mathmark:${key}`) }
+    catch { return null }
 }
 
 function save(key: string, value: string) {
@@ -31,11 +30,7 @@ function save(key: string, value: string) {
     catch { /* not remembered */ }
 }
 
-export function applyTheme(theme: Theme) {
-    document.documentElement.dataset.theme = theme;
-}
-
-const initialTheme: Theme = load('theme', 'dark') === 'light' ? 'light' : 'dark';
+const initialTheme = toThemeId(load('theme'));
 applyTheme(initialTheme);
 
 const useUIStore = create<UIStore>(set => ({
@@ -45,23 +40,22 @@ const useUIStore = create<UIStore>(set => ({
     toggleDocs: () => set(state => ({docsOpen: !state.docsOpen})),
     sidebarOpen: false,
     toggleSidebar: () => set(state => ({sidebarOpen: !state.sidebarOpen})),
-    exact: load('exact', 'true') !== 'false',
+    exact: load('exact') !== 'false',
     toggleExact: () => set(state => {
         save('exact', String(!state.exact));
         return {exact: !state.exact};
     }),
-    steps: load('steps', 'true') !== 'false',
+    steps: load('steps') !== 'false',
     toggleSteps: () => set(state => {
         save('steps', String(!state.steps));
         return {steps: !state.steps};
     }),
     theme: initialTheme,
-    toggleTheme: () => set(state => {
-        const theme: Theme = state.theme === 'dark' ? 'light' : 'dark';
+    setTheme: (theme) => {
         save('theme', theme);
         applyTheme(theme);
-        return {theme};
-    })
+        set({theme});
+    }
 }));
 
 export default useUIStore;

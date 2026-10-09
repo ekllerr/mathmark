@@ -2,7 +2,7 @@ import Header from "@/components/Header"
 import Main from "@/components/Main"
 import useUIStore from "@/store/uiStore";
 import { useEffect } from "react";
-import { applyTheme } from "@/store/uiStore";
+import { applyTheme, PRINT_THEME } from "@/themes";
 import Docs from "./components/Docs";
 import SharedDocument from "./components/SharedDocument";
 
@@ -36,9 +36,9 @@ function App() {
     return () => window.removeEventListener('keydown', handler);
   }, [toggleDocs]);
   
-  // paper is white: print in the light theme whatever is on screen
+  // paper is white: print in the Paper theme whatever is on screen
   useEffect(() => {
-    const before = () => applyTheme('light');
+    const before = () => applyTheme(PRINT_THEME);
     const after = () => applyTheme(useUIStore.getState().theme);
 
     window.addEventListener('beforeprint', before);
