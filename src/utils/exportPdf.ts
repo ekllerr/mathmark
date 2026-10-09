@@ -7,6 +7,7 @@ export async function exportToPdf() {
 
   const container = document.createElement('div')
   container.className = 'pdf-export prose prose-sm max-w-none'
+  container.dataset.theme = 'light'
   container.style.cssText = `
     position: fixed;
     top: -9999px;

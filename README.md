@@ -18,11 +18,18 @@ Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }`
 - **Beautiful rendering** - expressions rendered with KaTeX
 - **Plotting** - interactive charts via Plotly.js
 - **Functions** - `f(x) = expr`, reusable in expressions, plots, integrals and derivatives
-- **Derivatives** - symbolic `diff(x) expr`, or at a point with `diff(x, a) expr`
+- **Derivatives** - symbolic `diff(x) expr`, higher-order and partial, or at a point with `diff(x, a) expr`
 - **Numerical integration** - `int(a,b) expr dx`
-- **Limits** - `lim(x->c) expr`
+- **Limits** - `lim(x->c) expr`, one-sided with `lim(x->c+)` and `lim(x->c-)`
+- **Equation solving** - `solve(x^2 - x - 1 = 0)`
+- **Exact results** - fractions, roots and multiples of π where they can be found, alongside the decimal
+- **Inline math** - a `${ ... }` inside a sentence stays in the sentence
 - **Combinatorics** - `n!`, `C(n,k)`, `P(n,k)`
 - **Split / Editor / Preview** modes
+- **Step display** - results show the values substituted in, `a·b = 2·3 = 6`
+- **Editor help** - highlighting, autocomplete and underlined errors inside `${ }`
+- **Multiple documents** - a list of notes, each saved in the browser
+- **Light and dark themes**
 - **Autosave** - your notes are kept in the browser and are there when you come back
 - **Share by link** - the document is compressed into the URL, no server involved
 - **Fully client-side**
@@ -31,7 +38,9 @@ Mathmark lets you write mathematical notes naturally. Wrap expressions in `${ }`
 
 ## DSL Syntax
 
-All math blocks use the `${ ... }` syntax. Statements inside a block are separated by commas and executed left to right. A `${ ... }` inside markdown code (backticks or a fenced block) is shown as written, not evaluated.
+All math blocks use the `${ ... }` syntax. Statements inside a block are separated by commas and executed left to right.
+
+A `${ ... }` on a line of its own is set as a display block with an `= on / off` switch for its results. A `${ ... }` inside a line of text is set inline, as part of the sentence; click it to show its result. A `${ ... }` inside markdown code (backticks or a fenced block) is shown as written, not evaluated.
 
 ### Variables & Expressions
 
@@ -76,13 +85,42 @@ ${ f(x) = ln(x) * x, diff(x) f(x) }
 
 `diff(x) expr` differentiates symbolically. Add a point, `diff(x, a) expr`, to get the value of the derivative at `x = a`.
 
+```
+${ diff(x^2) x^4 }
+${ diff(x) diff(y) x^2 * y^3 }
+${ diff(y) x^2 * y }
+```
+
+`diff(x^n)` is the n-th derivative. Derivatives nest, `diff(x) diff(y) expr`, for mixed partials, and an expression with more than one unknown is written with ∂.
+
 ### Limits
 
 ```
 ${ lim(x->0) sin(x)/x }
 ```
 
-Evaluated numerically via two-sided approximation.
+Evaluated numerically via two-sided approximation. `lim(x->0+)` and `lim(x->0-)` take the limit from one side only.
+
+### Sums & Products
+
+```
+${ sum(i, 1, 10) i^2 }
+${ prod(i, 1, 5) i }
+```
+
+### Solving Equations
+
+```
+${ solve(x^2 - x - 1 = 0) }
+${ solve(sin(x) = 1/2, 0, 2*pi) }
+${ solve(a*t^2 = 8, t) }
+```
+
+Linear and quadratic equations are solved exactly; other polynomials have all their real roots found numerically. Any other equation is searched for roots between -100 and 100, or in the range you give as `solve(equation, from, to)`. Name the unknown as a second argument when the equation has more than one letter in it.
+
+### Exact Results
+
+With **Exact** on (the default), a result is also shown in exact form when one is found: `1/3 + 1/6` gives 1/2, `sqrt(8)` gives 2√2, `atan(1)` gives π/4. Arithmetic on fractions is carried out exactly. Other values, including integrals and limits, are matched against simple fractions and multiples of square roots, π, e and a few logarithms; a value that matches none of these is shown as a decimal only. Turn **Exact** off in the header for decimals everywhere.
 
 ### Combinatorics
 
@@ -104,11 +142,30 @@ ${ P(5, 2), P(4) }
 
 `C` and `P` need non-negative integers with `k ≤ n`.
 
-## Saving & Sharing
+### Steps
 
-Your document is saved in the browser (`localStorage`) on every change, so you can close the tab and resume later on the same browser and device.
+With **Steps** on (the default), a result shows its working: variables are replaced by their values and your own functions are written out.
 
-**Share** copies a link with the whole document compressed into the part of the URL after `#`, which is never sent to a server. Opening a link when you already have different notes saved asks before replacing them. Very long documents make long links, which some chat and email apps cut short.
+```
+${ m = 2, v = 3, 1/2 * m * v^2 }
+${ f(x) = x^2 + 1, f(3) }
+```
+
+These read ½·m·v² = ½·2·3² = 9 and f(3) = 3² + 1 = 10. Turn **Steps** off in the header for the result alone.
+
+## The Editor
+
+Inside a `${ }` the editor colours keywords, functions and numbers, and suggests names as you type: the built-in forms (`int`, `diff`, `lim`, `sum`, `prod`, `solve`, `plot`), common functions, and the variables and functions your own document defines. A statement that fails is underlined where the problem is; hover over it for the message.
+
+## Documents, Saving & Sharing
+
+**Notes** in the header opens the list of your documents. Each is named after its first line. They are saved in the browser (`localStorage`) on every change, so you can close the tab and resume later on the same browser and device. Deleting a document asks for a second click and cannot be undone.
+
+**Share** copies a link with the current document compressed into the part of the URL after `#`, which is never sent to a server. Opening a link adds it as a new document; your own notes are left as they were. Very long documents make long links, which some chat and email apps cut short.
+
+## Themes & Printing
+
+The **light / dark** switch in the header changes the theme and is remembered. Printing and PDF export always use the light theme.
 
 ---
 

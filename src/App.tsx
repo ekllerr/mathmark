@@ -2,6 +2,7 @@ import Header from "@/components/Header"
 import Main from "@/components/Main"
 import useUIStore from "@/store/uiStore";
 import { useEffect } from "react";
+import { applyTheme } from "@/store/uiStore";
 import Docs from "./components/Docs";
 import SharedDocument from "./components/SharedDocument";
 
@@ -35,6 +36,19 @@ function App() {
     return () => window.removeEventListener('keydown', handler);
   }, [toggleDocs]);
   
+  // paper is white: print in the light theme whatever is on screen
+  useEffect(() => {
+    const before = () => applyTheme('light');
+    const after = () => applyTheme(useUIStore.getState().theme);
+
+    window.addEventListener('beforeprint', before);
+    window.addEventListener('afterprint', after);
+    return () => {
+      window.removeEventListener('beforeprint', before);
+      window.removeEventListener('afterprint', after);
+    }
+  }, []);
+
   return (
     <div className="flex flex-col h-screen bg-bg text-text">
       <Header />

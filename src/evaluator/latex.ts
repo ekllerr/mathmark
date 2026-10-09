@@ -1,4 +1,13 @@
 import * as math from 'mathjs'
+import type { ValueResult } from './evaluate'
+
+// the LaTeX to draw for a statement: the expression, and optionally its working and its result
+export function resultToLatex(result: ValueResult, showResult: boolean, exact: boolean, steps: boolean): string {
+    if(!showResult) return result.exprLatex;
+
+    const working = steps && result.stepLatex ? ` = ${result.stepLatex}` : '';
+    return `${result.exprLatex}${working} ${exact && result.exactLatex ? result.exactLatex : result.resultLatex}`;
+}
 
 function roundNum(val: number): number {
     return Math.round(val * 1e10) / 1e10;

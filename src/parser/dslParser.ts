@@ -26,6 +26,7 @@ export interface LimitStatement{
     type: 'limit',
     variable: string,
     approach: string,
+    side: 'left' | 'right' | null, //x->c- and x->c+, null for the two-sided limit
     expr: string,
     raw: string
 }
@@ -37,7 +38,7 @@ export interface ExpressionStatement{
 }
 
 export interface SumStatement{
-    type: 'sum',
+    type: 'sum' | 'product',
     variable: string,
     from: string,
     to: string,
@@ -55,9 +56,18 @@ export interface FunctionStatement{
 
 export interface DerivativeStatement{
     type: 'derivative',
-    variable: string,
+    variables: string[], //one entry per differentiation, in the order they are written: [x, x, y] is d³/dx²dy
     at: string | null, //point to evaluate at, null for the symbolic derivative
     expr: string,
+    raw: string
+}
+
+export interface SolveStatement{
+    type: 'solve',
+    left: string,
+    right: string,
+    variable: string | null, //null: work it out from the equation
+    range: [string, string] | null, //where to search, null for the default
     raw: string
 }
 
@@ -70,6 +80,7 @@ export type Statement =
     | LimitStatement
     | ExpressionStatement
     | SumStatement
+    | SolveStatement
 
 export function parseStatements(inner: string): Statement[]{
    return splitTopLevel(inner).map(parseStatement);
@@ -121,8 +132,11 @@ function parseCall({ name, args, rest }: Call, raw: string): Statement | null {
     if(name === 'plot' && rest === '' && args.length > 0)
         return {type: 'plot', fns: args, raw}
 
-    if(name === 'diff' && rest && (args.length === 1 || args.length === 2) && VARIABLE.test(args[0]))
-        return {type: 'derivative', variable: args[0], at: args[1] ?? null, expr: rest, raw}
+    if(name === 'diff' && rest && (args.length === 1 || args.length === 2))
+        return parseDerivative(args, rest, raw);
+
+    if(name === 'solve' && rest === '' && args.length >= 1 && args.length <= 4)
+        return parseSolve(args, raw);
 
     if(name === 'int' && args.length === 2){
         const body = rest.match(/^([\s\S]+?)\s+d([a-z])$/);
@@ -132,12 +146,79 @@ function parseCall({ name, args, rest }: Call, raw: string): Statement | null {
 
     if(name === 'lim' && rest && args.length === 1){
         const approach = args[0].match(/^([a-z])\s*->\s*([\s\S]+)$/);
-        if(approach)
-            return {type: 'limit', variable: approach[1], approach: approach[2].trim(), expr: rest, raw}
+        if(approach){
+            // a trailing + or - (optionally written ^+) asks for a one-sided limit
+            const sided = approach[2].trim().match(/^([\s\S]*[^\s^])\s*\^?\s*([+-])$/);
+
+            return {
+                type: 'limit',
+                variable: approach[1],
+                approach: sided ? sided[1].trim() : approach[2].trim(),
+                side: sided ? (sided[2] === '+' ? 'right' : 'left') : null,
+                expr: rest,
+                raw
+            }
+        }
     }
 
-    if(name === 'sum' && rest && args.length === 3 && VARIABLE.test(args[0]))
-        return {type: 'sum', variable: args[0], from: args[1], to: args[2], expr: rest, raw}
+    if((name === 'sum' || name === 'prod') && rest && args.length === 3 && VARIABLE.test(args[0]))
+        return {type: name === 'sum' ? 'sum' : 'product', variable: args[0], from: args[1], to: args[2], expr: rest, raw}
 
     return null;
+}
+
+// `x` or `x^2`: the variable repeated once per order of differentiation
+function derivativeVariables(arg: string): string[] | null {
+    const match = arg.match(/^([a-z])(?:\s*\^\s*([1-9]))?$/);
+    return match ? Array<string>(Number(match[2] ?? 1)).fill(match[1]) : null;
+}
+
+// diff(x) expr, diff(x^2) expr, diff(x, a) expr, and nested forms such as diff(x) diff(y) expr
+function parseDerivative(args: string[], rest: string, raw: string): Statement | null {
+    const variables = derivativeVariables(args[0]);
+    if(!variables) return null;
+
+    let expr = rest;
+
+    for(let inner = readCall(expr); inner && inner.name === 'diff' && inner.rest && inner.args.length === 1; inner = readCall(expr)){
+        const more = derivativeVariables(inner.args[0]);
+        if(!more) break;
+
+        variables.push(...more);
+        expr = inner.rest;
+    }
+
+    return {type: 'derivative', variables, at: args[1] ?? null, expr, raw}
+}
+
+// solve(equation), solve(equation, x), solve(equation, from, to), solve(equation, x, from, to)
+function parseSolve(args: string[], raw: string): Statement | null {
+    const named = args.length === 2 || args.length === 4;
+    if(named && !IDENTIFIER.test(args[1])) return null;
+
+    const equation = args[0];
+    const equals = findEquals(equation);
+    const width = equation[equals + 1] === '=' ? 2 : 1;
+
+    return {
+        type: 'solve',
+        left: equals === -1 ? equation : equation.slice(0, equals).trim(),
+        right: equals === -1 ? '0' : equation.slice(equals + width).trim(),
+        variable: named ? args[1] : null,
+        range: args.length >= 3 ? [args[args.length - 2], args[args.length - 1]] : null,
+        raw
+    }
+}
+
+// index of the = (or ==) that separates the two sides of an equation, ignoring <=, >= and !=
+function findEquals(text: string): number {
+    let depth = 0;
+
+    for(let i = 0; i < text.length; i++){
+        if('([{'.includes(text[i])) depth++;
+        else if(')]}'.includes(text[i])) depth--;
+        else if(text[i] === '=' && depth === 0 && !'<>!'.includes(text[i - 1] ?? ' ')) return i;
+    }
+
+    return -1;
 }

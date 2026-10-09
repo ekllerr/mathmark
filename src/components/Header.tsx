@@ -14,6 +14,15 @@ export default function Header() {
     const docsOpen = useUIStore(state => state.docsOpen);
     const toggleDocs = useUIStore(state => state.toggleDocs);
 
+    const exact = useUIStore(state => state.exact);
+    const toggleExact = useUIStore(state => state.toggleExact);
+    const steps = useUIStore(state => state.steps);
+    const toggleSteps = useUIStore(state => state.toggleSteps);
+    const sidebarOpen = useUIStore(state => state.sidebarOpen);
+    const toggleSidebar = useUIStore(state => state.toggleSidebar);
+    const theme = useUIStore(state => state.theme);
+    const toggleTheme = useUIStore(state => state.toggleTheme);
+
     const hasContent = useEditorStore(state => state.content.trim() !== '');
     const [shareStatus, setShareStatus] = useState<string | null>(null);
 
@@ -43,15 +52,42 @@ export default function Header() {
     <header className="flex flex-wrap items-center gap-4 px-4 md:px-6 h-auto md:h-13 py-2 md:py-0 border-b border-border bg-surface shrink-0">
           <div className="flex items-baseline gap-2">
             <span className="font-serif text-[22px] text-accent leading-none">∑</span>
-            <span className="font-serif font-medium text-[18px] tracking-tight text-white">Mathmark</span>
+            <span className="font-serif font-medium text-[18px] tracking-tight text-heading">Mathmark</span>
             <span className="text-[10px] text-muted tracking-widest uppercase">Math Editor</span>
           </div>
+          <button
+          onClick={toggleSidebar}
+          aria-pressed={sidebarOpen}
+          title="Your documents"
+          className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
+          ${sidebarOpen ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
+          >
+            Notes
+          </button>
           <button
           onClick={toggleDocs} 
           className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
           ${docsOpen ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
           >
             Docs
+          </button>
+          <button
+          onClick={toggleExact}
+          aria-pressed={exact}
+          title={exact ? 'Results are shown as fractions and roots where possible. Click for decimals only.' : 'Results are shown as decimals. Click for fractions and roots where possible.'}
+          className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
+          ${exact ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
+          >
+            Exact
+          </button>
+          <button
+          onClick={toggleSteps}
+          aria-pressed={steps}
+          title={steps ? 'Results show the values substituted into each expression. Click to hide the working.' : 'Click to show the values substituted into each expression.'}
+          className={`font-mono text-[11px] tracking-widest uppercase px-3.5 py-1.25 rounded-md cursor-pointer transition-colors
+          ${steps ? 'bg-border text-accent' : 'text-muted hover:text-text'}`}
+          >
+            Steps
           </button>
           <nav className="flex flex-1 justify-center">
             <div className="flex gap-1 bg-bg border border-border rounded-lg p-0.75">
@@ -87,6 +123,13 @@ export default function Header() {
             className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted"
           >
             print 
+          </button>
+          <button
+            onClick={toggleTheme}
+            title={`Switch to the ${theme === 'dark' ? 'light' : 'dark'} theme`}
+            className="text-muted hover:text-accent font-mono text-[11px] tracking-widest uppercase transition-colors cursor-pointer"
+          >
+            {theme === 'dark' ? 'light' : 'dark'}
           </button>
           <a
             className="flex items-center gap-1.5 text-[11px] text-muted tracking-wide no-underline hover:text-accent transition-colors"

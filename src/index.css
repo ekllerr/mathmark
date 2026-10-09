@@ -13,7 +13,46 @@
   --color-accent: #7DF9AA;
   --color-accent2: #60CFFF;
   --color-muted: #5a5a78;
-  --color-text: #e5e5e5
+  --color-text: #e5e5e5;
+  --color-heading: #ffffff;
+  --color-number: #FFD166
+}
+
+/* The light theme only redefines the colours: every component reads them through these variables.
+   It is set on <html> by the theme switch, and on the off-screen copy that exportToPdf renders. */
+[data-theme="light"] {
+  --color-bg: #eeeef3;
+  --color-surface: #ffffff;
+  --color-panel: #fafafc;
+  --color-border: #dcdce6;
+  --color-accent: #0f9d58;
+  --color-accent2: #1a73e8;
+  --color-muted: #6b6b85;
+  --color-text: #24242e;
+  --color-heading: #111118;
+  --color-number: #b45309;
+}
+
+/* prose is styled for the dark theme with prose-invert: in the light theme, hand it dark-on-light colours */
+[data-theme="light"] .prose-invert,
+[data-theme="light"].prose {
+  --tw-prose-body: #374151;
+  --tw-prose-headings: #111827;
+  --tw-prose-lead: #4b5563;
+  --tw-prose-links: #111827;
+  --tw-prose-bold: #111827;
+  --tw-prose-counters: #6b7280;
+  --tw-prose-bullets: #d1d5db;
+  --tw-prose-hr: #e5e7eb;
+  --tw-prose-quotes: #111827;
+  --tw-prose-quote-borders: #e5e7eb;
+  --tw-prose-captions: #6b7280;
+  --tw-prose-kbd: #111827;
+  --tw-prose-code: #111827;
+  --tw-prose-pre-code: #e5e7eb;
+  --tw-prose-pre-bg: #1f2937;
+  --tw-prose-th-borders: #d1d5db;
+  --tw-prose-td-borders: #e5e7eb;
 }
 
 @media print {
@@ -78,6 +117,20 @@
   .js-plotly-plot .legend .traces:nth-child(5n+4) .legendlines path { stroke: #e37400 !important; }
   .js-plotly-plot .scatterlayer .trace:nth-child(5n+5) .js-line,
   .js-plotly-plot .legend .traces:nth-child(5n+5) .legendlines path { stroke: #8e24aa !important; }
+}
+
+/* inline math is clickable: it shows its result in place */
+.math-inline {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 1px 3px;
+  transition: background-color 150ms;
+}
+
+.math-inline:hover,
+.math-inline:focus-visible {
+  background-color: var(--color-border);
+  outline: none;
 }
 
 @layer base {
