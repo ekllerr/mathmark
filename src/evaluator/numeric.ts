@@ -11,20 +11,88 @@ export function toReal(val: unknown): number {
 }
 
 export function integrate(f: RealFunction, a: number, b: number): number {
-    return isFinite(a) && isFinite(b) ? integrateSimpson(f, a, b) : integrateImproper(f, a, b);
+    return isFinite(a) && isFinite(b) ? integrateFinite(f, a, b) : integrateImproper(f, a, b);
 }
 
-function integrateSimpson(f: RealFunction, a: number, b: number): number {
-    const n = 1000;
-    const h = (b - a) / n;
-    let sum = 0;
+const NOT_CONVERGENT = 'integral does not converge, or converges too slowly to evaluate numerically';
 
-    for(let i = 0; i <= n; i++){
-        const v = f(a + i * h);
-        sum += ( i === 0 || i === n) ? v : (i % 2 === 0 ? 2 * v : 4 * v);
+// NaN when the integrand has no real value somewhere in the range
+function integrateFinite(f: RealFunction, a: number, b: number): number {
+    if(a === b) return 0;
+    if(a > b) return -integrateFinite(f, b, a);
+
+    // tanh-sinh is very accurate for smooth integrands and copes with singular endpoints such as sqrt(x) at 0;
+    // adaptive Simpson takes over for integrands with corners, which tanh-sinh converges on too slowly
+    return tanhSinh(f, a, b) ?? adaptiveSimpson(f, a, b);
+}
+
+// null when the rule does not settle
+function tanhSinh(f: RealFunction, a: number, b: number): number | null {
+    const width = b - a;
+    const range = 4;
+    let undefinedInside = false;
+
+    const term = (s: number): number => {
+        const u = (Math.PI / 2) * Math.sinh(s);
+        // measured from the nearer end, so points can sit extremely close to an endpoint without landing on it
+        const x = u < 0 ? a + width / (1 + Math.exp(-2 * u)) : b - width / (1 + Math.exp(2 * u));
+        if(x <= a || x >= b) return 0;
+
+        const weight = (width / 2) * (Math.PI / 2) * Math.cosh(s) / Math.cosh(u) ** 2;
+        const v = f(x);
+        if(isNaN(v)) { undefinedInside = true; return 0; }
+        return v * weight;
     }
 
-    return (h / 3) * sum;
+    let steps = 16;
+    let h = (2 * range) / steps;
+    let sum = 0;
+    for(let i = 0; i <= steps; i++) sum += term(-range + i * h);
+
+    let estimate = sum * h;
+
+    for(let level = 0; level < 6; level++){
+        for(let i = 0; i < steps; i++) sum += term(-range + (i + 0.5) * h);
+        steps *= 2;
+        h /= 2;
+
+        const refined = sum * h;
+        if(undefinedInside) return NaN;
+        if(!isFinite(refined)) return null;
+        if(Math.abs(refined - estimate) <= 1e-11 * Math.max(1, Math.abs(refined))) return refined;
+        estimate = refined;
+    }
+
+    return null;
+}
+
+function adaptiveSimpson(f: RealFunction, a: number, b: number): number {
+    let evaluations = 0;
+
+    const at = (x: number): number => {
+        const v = f(x);
+        if(++evaluations > 200000 || v === Infinity || v === -Infinity) throw new Error(NOT_CONVERGENT);
+        return v;
+    }
+
+    const simpson = (fa: number, fm: number, fb: number, width: number) => (width / 6) * (fa + 4 * fm + fb);
+
+    const refine = (lo: number, hi: number, flo: number, fmid: number, fhi: number, whole: number, tolerance: number, depth: number): number => {
+        const mid = (lo + hi) / 2;
+        const fleft = at((lo + mid) / 2);
+        const fright = at((mid + hi) / 2);
+        const left = simpson(flo, fleft, fmid, mid - lo);
+        const right = simpson(fmid, fright, fhi, hi - mid);
+        const error = left + right - whole;
+
+        if(depth >= 40 || Math.abs(error) <= 15 * tolerance) return left + right + error / 15;
+        return refine(lo, mid, flo, fleft, fmid, left, tolerance / 2, depth + 1)
+             + refine(mid, hi, fmid, fright, fhi, right, tolerance / 2, depth + 1);
+    }
+
+    const fa = at(a), fm = at((a + b) / 2), fb = at(b);
+    const whole = simpson(fa, fm, fb, b - a);
+    return refine(a, b, fa, fm, fb, whole, 1e-11 * Math.max(1, Math.abs(whole)), 0);
 }
 
 // integrals with an infinite bound: double-exponential substitution, then the trapezoid rule in s
@@ -47,7 +115,7 @@ function integrateImproper(f: RealFunction, a: number, b: number): number {
         return v * weight;
     }
 
-    const notConvergent = new Error('integral does not converge, or converges too slowly to evaluate numerically');
+    const notConvergent = new Error(NOT_CONVERGENT);
     const range = 6.5; // exp(pi/2 * sinh(6.5)) is about 1e226, close to the largest usable double
     let steps = 52;
     let h = (2 * range) / steps;

@@ -43,7 +43,7 @@ export default memo(function MathBlock({results}: Props) {
         }
 
         if (result.type === 'plot') {
-          return <MathPlot key={i} fns={result.fns} scope={result.scope} />
+          return <MathPlot key={i} fns={result.fns} scope={result.scope} range={result.range} />
         }
 
         return (

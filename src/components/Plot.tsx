@@ -2,11 +2,15 @@ import { useEffect, useMemo, useRef } from 'react';
 import type { Layout, PlotlyHTMLElement, PlotRelayoutEvent } from 'plotly.js';
 import { realFunction } from '@/evaluator/evaluate';
 import useUIStore from '@/store/uiStore';
+import { tameAsymptotes } from '@/utils/asymptotes';
 
 interface Props{
     fns: string[];
     scope: Record<string, unknown>
+    range: [number, number] | null // the x-range to open on; null for -10..10
 }
+
+const DEFAULT_RANGE: [number, number] = [-10, 10];
 
 type Plotly = typeof import('plotly.js-dist-min').default;
 
@@ -41,12 +45,12 @@ function applyPalette(layout: Partial<Layout>, element: HTMLElement): string[] {
   return [1, 2, 3, 4, 5].map(n => color(String(n)))
 }
 
-export default function MathPlot({ fns, scope }: Props) {
+export default function MathPlot({ fns, scope, range }: Props) {
 
     const ref = useRef<HTMLDivElement>(null)
     const plotlyRef = useRef<Plotly | null>(null)
     const layoutRef = useRef<Partial<Layout>>({})
-    const rangeRef = useRef<[number, number]>([-10, 10])
+    const rangeRef = useRef<[number, number]>(range ?? DEFAULT_RANGE)
     const drawRef = useRef<() => Promise<unknown> | undefined>(() => undefined)
     const theme = useUIStore(state => state.theme)
 
@@ -68,15 +72,22 @@ export default function MathPlot({ fns, scope }: Props) {
 
         const lines = applyPalette(layoutRef.current, ref.current)
 
-        const traces = curves.map((curve, i) => ({
+        const ys = curves.map(curve => xs.map(x => {
+          try {
+            const y = curve(x)
+            return isNaN(y) ? null : y
+          }
+          catch { return null }
+        }))
+
+        const yRange = tameAsymptotes(ys)
+        layoutRef.current.yaxis = yRange
+          ? { ...layoutRef.current.yaxis, autorange: false, range: yRange }
+          : { ...layoutRef.current.yaxis, autorange: true }
+
+        const traces = curves.map((_, i) => ({
           x: xs,
-          y: xs.map(x => {
-            try {
-              const y = curve(x)
-              return isNaN(y) ? null : y
-            }
-            catch { return null }
-          }),
+          y: ys[i],
           type: 'scatter' as const,
           mode: 'lines' as const,
           name: fns[i],
@@ -94,6 +105,13 @@ export default function MathPlot({ fns, scope }: Props) {
 
       drawRef.current()
     }, [curves, fns, theme]) // theme: the colours are read again when it changes
+
+    // a new range written in the document replaces wherever the reader had panned to
+    useEffect(() => {
+      rangeRef.current = range ?? DEFAULT_RANGE
+      if (layoutRef.current.xaxis) layoutRef.current.xaxis = { ...layoutRef.current.xaxis, autorange: true }
+      drawRef.current()
+    }, [range])
 
     // Plotly is large, so it is loaded only once a plot is actually on screen
     useEffect(() => {

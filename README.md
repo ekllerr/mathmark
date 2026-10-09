@@ -65,7 +65,7 @@ ${ plot(x^2) }
 ${ plot(sin(x), cos(x)) }
 ```
 
-Default domain: `x ∈ [-10, 10]`. Multiple functions share the same plot.
+Default domain: `x ∈ [-10, 10]`; give another as `a..b`, for example `plot(sin(x), -pi..pi)`. Multiple functions share the same plot, and a plot can be dragged sideways. Curves with vertical asymptotes, such as `tan(x)`, are drawn in separate branches.
 
 ### Integrals
 
@@ -121,6 +121,12 @@ Linear and quadratic equations are solved exactly; other polynomials have all th
 ### Exact Results
 
 With **Exact** on (the default), a result is also shown in exact form when one is found: `1/3 + 1/6` gives 1/2, `sqrt(8)` gives 2√2, `atan(1)` gives π/4. Arithmetic on fractions is carried out exactly. Other values, including integrals and limits, are matched against simple fractions and multiples of square roots, π, e and a few logarithms; a value that matches none of these is shown as a decimal only. Turn **Exact** off in the header for decimals everywhere.
+
+### Degrees
+
+Trigonometric functions work in radians. Write `deg` for degrees: `sin(30 deg)`.
+
+A single letter is always a variable, never a unit, so `m * g` stays a formula until `m` and `g` have values.
 
 ### Combinatorics
 
