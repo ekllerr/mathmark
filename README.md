@@ -161,6 +161,8 @@ These read ½·m·v² = ½·2·3² = 9 and f(3) = 3² + 1 = 10. Turn **Steps** o
 
 ## The Editor
 
+The bar above the editor inserts the common pieces with one click: a math block (also **Ctrl+M**), fractions, roots, integrals, derivatives, limits, sums, `solve`, `plot`, and headings, bold and list items. Each insert selects the part you will want to change, and a math insert adds its own `${ }` unless the cursor is already in one. Select text first to wrap it.
+
 Inside a `${ }` the editor colours keywords, functions and numbers, and suggests names as you type: the built-in forms (`int`, `diff`, `lim`, `sum`, `prod`, `solve`, `plot`), common functions, and the variables and functions your own document defines. A statement that fails is underlined where the problem is; hover over it for the message.
 
 ## Documents, Saving & Sharing

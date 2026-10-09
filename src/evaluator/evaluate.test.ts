@@ -227,6 +227,12 @@ describe('solve', () => {
     expect(error('solve(x + y = 2)')).toMatch(/several unknowns/)
     expect(error('solve(3 = 3)')).toMatch(/nothing to solve for/)
   })
+
+  it('still solves for a variable that was given a value earlier', () => {
+    expect(roots('x = 3, solve(x^2 = 4)')).toEqual([-2, 2])
+    expect(roots('t = 1, solve(2*t = 8)')).toEqual([4])
+    expect(error('a = 1, b = 2, solve(a + b = 3)')).toMatch(/nothing to solve for/)
+  })
 })
 
 describe('exact results', () => {

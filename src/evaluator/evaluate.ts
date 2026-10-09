@@ -547,7 +547,17 @@ function unknownOf(node: math.MathNode, scope: Scope): string {
     const unknowns = freeSymbols(node, scope);
 
     if(unknowns.length === 1) return unknowns[0];
-    if(unknowns.length === 0) throw new Error('nothing to solve for: name the variable, e.g. solve(x^2 = 4, x)');
+
+    if(unknowns.length === 0){
+        // every letter already has a value, perhaps from earlier in the notes: an equation is still
+        // a question about its variable, so solve for x, or for the only variable there is
+        const variables = freeSymbols(node, {}).filter(name => typeof scope[name] !== 'function');
+        if(variables.includes('x')) return 'x';
+        if(variables.length === 1) return variables[0];
+
+        throw new Error('nothing to solve for: name the variable, e.g. solve(x^2 = 4, x)');
+    }
+
     throw new Error(`several unknowns (${unknowns.join(', ')}): give the others a value, or name the one to solve for`);
 }
 
